@@ -46,7 +46,6 @@ namespace gpu
     VkNodeId buildBatch();
 
   private:
-    std::vector<VkDependencyFlags> dependency_;
     std::vector<std::unique_ptr<gpu::VkNode>> nodes_;
     std::vector<std::unique_ptr<gpu::VkPass>> passes_;
     std::vector<SwapchainHandle> swapchainHandle;

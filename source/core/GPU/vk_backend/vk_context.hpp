@@ -49,7 +49,7 @@ namespace gpu
     std::unordered_map<VkPassId, VkPass*> passHash_;
     std::unordered_map<VkNodeId, VkNode*> nodeHash_;
 
-
+    std::vector<SwapchainHandle> swapchainHandle;
     std::unique_ptr<gpu::VkGraphBuilder> pGraphBuilder;
     std::unique_ptr<gpu::VkMemoryAllocator> pMemoryAllocator;
     std::unique_ptr<gpu::VkSwapchainContext> pSwapChainContext;

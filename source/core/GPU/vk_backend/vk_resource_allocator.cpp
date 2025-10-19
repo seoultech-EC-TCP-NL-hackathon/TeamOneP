@@ -21,33 +21,25 @@ void gpu::VkResourceAllocator::buildMeshNode(VkMeshBuffer* buffer)
   buffer->iSize__= sizeof(buffer->indices[0])*buffer->indices.size();
   buffer->vData__= buffer->vertex.data();
   buffer->iData__= buffer->indices.data();
-
   buffer->vertexBuffer__ = buildBufferHandle(buffer->vSize__,
                                              VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
                                              VK_BUFFER_USAGE_TRANSFER_DST_BIT);
-
   buffer->vAllocation__ = mBindBuffer(buffer->vertexBuffer__,
                                       VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
   VkBufferNode vStaging = getStagingBuffer(buffer->vData__,
                                            buffer->vSize__);
-
   uploadCopyPass(vStaging.bufferh_,
                  buffer->vertexBuffer__,
                  0,
                  0,
                  buffer->vSize__);
-
   buffer->indexBuffer__ = buildBufferHandle(buffer->iSize__,
                                             VK_BUFFER_USAGE_INDEX_BUFFER_BIT |
                                             VK_BUFFER_USAGE_TRANSFER_DST_BIT);
-
   buffer->iAllocation__ = mBindBuffer(buffer->indexBuffer__,
                                       VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
   VkBufferNode iStaging = getStagingBuffer(buffer->iData__,
                                            buffer->iSize__);
-
   uploadCopyPass(iStaging.bufferh_,
                  buffer->indexBuffer__,
                  0,

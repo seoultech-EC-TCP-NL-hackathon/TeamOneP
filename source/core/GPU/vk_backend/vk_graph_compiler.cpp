@@ -142,7 +142,8 @@ namespace gpu
       if (frameImage->usage_ & (gpu::ResourceUsage::DEPTH_STENCIL_ATTACHMENT |
         gpu::ResourceUsage::SHADOW_BUFFER))
       {
-        frameImage->writeAccessMask__ = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        frameImage->writeAccessMask__ = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+          VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
         frameImage->writePipeline__ = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT |
           VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         frameImage->writeLayout__ = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
@@ -356,10 +357,11 @@ namespace gpu
             VkRenderingAttachmentInfo depthAttachment{};
             depthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
             depthAttachment.imageView = frameImage->imageView__;
-            depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL_KHR;
             depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
             depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
             depthAttachment.clearValue.color = renderPass->passParameter__.clearColor__;
+            depthAttachment.clearValue.depthStencil =  {1.0f, 0};
             renderPass->passParameter__.depthAttachment__ = depthAttachment;
           }
         }
@@ -410,7 +412,7 @@ namespace gpu
 
   void VkGraphCompiler::writeSync(VkImageNode* image)
   {
-    if ((image->writeLayout__ != image->currentLayout__) ||
+    if ((image->currentLayout__ != image->writeLayout__) ||
       (image->currentAccessMask__ != image->writeAccessMask__) ||
       (image->currentPipeline__ != image->writePipeline__) ||
       image->lastWriter__ != nullptr) //who write-> sync

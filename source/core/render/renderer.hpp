@@ -75,7 +75,7 @@ private:
   VkBool32 depthTest        = VK_TRUE;
   VkBool32 drawBackground   = VK_TRUE;
 
-  std::string fragPath     = "C:/Users/dlwog/OneDrive/Desktop/VkMain-out/source/shader/uv.frag";
+  std::string fragPath     = "C:/Users/dlwog/OneDrive/Desktop/VkMain-out/source/shader/depth.frag";
   std::string vertPath     = "C:/Users/dlwog/OneDrive/Desktop/VkMain-out/source/shader/vertex.vert";
   std::string fragBackPath = "C:/Users/dlwog/OneDrive/Desktop/VkMain-out/source/shader/sculptor_background.frag";
   std::string VertBackPath = "C:/Users/dlwog/OneDrive/Desktop/VkMain-out/source/shader/sculptor_background.vert";

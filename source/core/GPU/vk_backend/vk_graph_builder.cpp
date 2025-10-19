@@ -8,7 +8,7 @@
 ///same with backend builder
 ///
 namespace gpu
-{
+{ //todo::change to static function
   VkGraphBuilder::VkGraphBuilder(VkContext* pCtxt) :
     pCtxt_(pCtxt),
     swapchainPass{}
@@ -146,5 +146,9 @@ namespace gpu
       swapchainHandle.push_back(id);
       flag();
     }
+  }
+  gpu::NodeId buildDepthAttachment()
+  {
+    return 0;
   }
 }

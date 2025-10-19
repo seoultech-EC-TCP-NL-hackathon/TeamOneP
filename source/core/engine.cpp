@@ -43,9 +43,7 @@ void Engine::init()
   ui.setupStyle();
   ui.setResourceManager(resourceManager_.get());
   Renderer->setCamera(cam);
-
-  mns::uptr<gpu::RenderPass> pass = mns::mUptr<gpu::RenderPass>();
-  Mesh mesh = resourceManager_->uploadMesh("C:/Users/dlwog/OneDrive/Desktop/VkMain-out/assets/models/sphere.gltf");
+  Mesh mesh = resourceManager_->uploadMesh("C:/Users/dlwog/OneDrive/Desktop/VkMain-out/assets/models/hand.fbx");
   mns::uptr<gpu::VkMeshBuffer> meshNode = mns::mUptr<gpu::VkMeshBuffer>();
   meshNode->vertex = mesh.vertices;
   meshNode->indices = mesh.indices;

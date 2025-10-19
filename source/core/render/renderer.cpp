@@ -1,6 +1,7 @@
 #include "../GPU/context.hpp"
 #include "renderer.hpp"
 #include "swapchainAttachment.hpp"
+// { color0 = RGBA8, color1 = RG16F, depth = D32 }
 
 RenderingSystem::RenderingSystem(RenderInitInfo info) : device_h(info.device_h),
                                                         pResourceManager(*info.resourceManager),
@@ -40,6 +41,7 @@ RenderingSystem::RenderingSystem(RenderInitInfo info) : device_h(info.device_h),
   {
     depthAttachmentHandle_.push_back(SwapchainAttachment::buildDepthAttachment());
   }
+
 }
 
 void RenderingSystem::uploadRenderPass()
@@ -76,7 +78,7 @@ void RenderingSystem::uploadRenderPass()
     gpu::ctx__.pGraphBuilder->addReadResource(renderPass, handle);
   }
   gpu::ctx__.pGraphBuilder->addWriteResource(renderPass, swapchain);
-  //gpu::ctx__.pGraphBuilder->addWriteResource(renderPass, depth);
+  gpu::ctx__.pGraphBuilder->addWriteResource(renderPass, depth);
 }
 
 void RenderingSystem::pushConstant(VkCommandBuffer command)

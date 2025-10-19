@@ -396,7 +396,7 @@ void PipelinePool::buildDynamicRenderingPipeline(VkPipelineRenderingCreateInfo &
   dynamicRendering.sType                   = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
   dynamicRendering.pColorAttachmentFormats = colorAttachmentFormats;
   dynamicRendering.colorAttachmentCount    = colorAttachmentCount;
-  dynamicRendering.depthAttachmentFormat   = depthFormat;
+  dynamicRendering.depthAttachmentFormat   = VK_FORMAT_D32_SFLOAT;
   dynamicRendering.viewMask                = viewMask;
   dynamicRendering.stencilAttachmentFormat = stencilAttachment;
 }

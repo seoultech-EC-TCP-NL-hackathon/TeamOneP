@@ -15,7 +15,5 @@ layout (location = 3) in mat3 TBN;
 layout (location = 6) in vec3 camPosIn;
 layout (location = 7) in vec2 uv;
 
-
-
 void main() {
 }

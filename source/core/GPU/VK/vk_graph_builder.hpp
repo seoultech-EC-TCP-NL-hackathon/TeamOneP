@@ -34,23 +34,25 @@ namespace gpu
     ~VkGraphBuilder();
     static VkPassId addPass(std::unique_ptr<VkPass>& pass);
     static void addResource(VkPassId passId,
-                     VkResourceId read,
-                     VkResourceId write);
+                            VkResourceId read,
+                            VkResourceId write);
 
     static void addReadResource(VkPassId passId, VkResourceId read);
     static void addWriteResource(VkPassId passId, VkResourceId write);
     static void uploadCopyPass(VkResource* read,
-                        VkResource* write);
+                               VkResource* write);
 
     static void buildSwapchainImage();
     static VkResourceId buildBufferHandle(std::unique_ptr<VkHostBuffer>& VkFBuffer);
     static VkHostBuffer buildHostBuffer(VkDeviceSize size, BufferType bufferType);
     static gpu::VkMeshBuffer* registerMeshBuffer(std::unique_ptr<VkMeshBuffer>& buffer);
+    static gpu::VkTexture* registerTexture(std::unique_ptr<VkTexture>& texture);
     static VkResourceId registerImage(std::unique_ptr<VkFrameAttachment>& image);
     static VkResourceId getSwapchainImage();
     static VkResourceId buildTexture(VkTexture* texture);
     static VkResourceId buildBatch();
     static VkFrameAttachment* buildDepthAttachment();
+    static gpu::VkFrameAttachment* buildGBufferHandle(uint32_t format);
 
     private:
     static void flag();

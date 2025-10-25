@@ -12,10 +12,10 @@ namespace gpu
 {
   using RenderNode = gpu::VkResourceId;
 
-  std::string fragPath     = "/home/ljh/CLionProjects/VkMain/source/shader/fragment.frag";
+  std::string depthOnly     = "/home/ljh/CLionProjects/VkMain/source/shader/fragment.frag";
   std::string vertPath     = "/home/ljh/CLionProjects/VkMain/source/shader/vertex.vert";
-  std::string fragBackPath = "/home/ljh/CLionProjects/VkMain/source/shader/dftBackground.frag";
-  std::string VertBackPath = "/home/ljh/CLionProjects/VkMain/source/shader/quad.vert";
+  std::string fragDepthRender = "/home/ljh/CLionProjects/VkMain/source/shader/back_ground_write.frag";
+  std::string vertexQuad = "/home/ljh/CLionProjects/VkMain/source/shader/quad.vert";
 
   enum class DescriptorFlag : uint32_t{
     UBO                    = 0x00000001,

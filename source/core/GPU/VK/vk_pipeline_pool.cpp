@@ -504,6 +504,19 @@ namespace gpu
         buildDynamicRenderingPipeline(dRenderingInfo,
                                       formats.data(),
                                       formats.size());
+        break;
+      }
+      case (RenderingAttachmentType::G_BUFFER):
+      {
+        std::vector<VkFormat> newFormats = {
+          VK_FORMAT_B8G8R8_UNORM,
+          VK_FORMAT_R16G16B16A16_SFLOAT,
+          VK_FORMAT_R16G16B16A16_SNORM
+        };
+        buildDynamicRenderingPipeline(dRenderingInfo,
+                                      newFormats.data(),
+                                      newFormats.size());
+        break;
       }
     }
     VkGraphicsPipelineCreateInfo pipelineInfo{};

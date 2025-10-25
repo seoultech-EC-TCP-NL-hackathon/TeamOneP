@@ -103,13 +103,25 @@ void gpu::VkScheduler::run()
   if (pCtxt_->dirty_)
   {
     pCtxt_->dirty_ = false;
-    graphCompiler_.compileGraph();
+    graphCompiler_.Immediate();
   }
   graphs_.execute(cmd);
   vkEndCommandBuffer(cmd);
-  //spdlog::debug("begin Rendering");
-
-
+  ///for (auto pass: graphCompiler_.waveFrontPasses)
+  ///{
+  /// setting level and queue sync
+  /// timeline semaphore sync with queue
+  /// barrier insert and use pass semaphore
+  ///   if(passType == compute)
+  ///      ->copute excute
+  /// slice with timeline semaphore, async pass level
+  /// time line level
+  /// async pass
+  /// main graphics CB
+  /// main
+  ///
+  ///
+  ///}
   VkSubmitInfo submitInfo{};
   VkSemaphore waitSemaphores[] = {
     (imageAvailiableSemaphorePool_.semaphores__

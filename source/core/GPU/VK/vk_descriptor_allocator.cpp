@@ -111,7 +111,7 @@ void gpu::VkDescriptorAllocator::writeUbo(VkBuffer srcBuffer,
   writedSets_.push_back(writeDescriptorSet);
 }
 
-void gpu::VkDescriptorAllocator::uploadBindlessTextureSet(VkTexture* texture)
+void gpu::VkDescriptorAllocator::uploadBindlessTextureSet(gpu::VkFrameAttachment* texture)
 {
   texture->sampler = samplerBuilder_.dftSampler;
   texture->descriptorArrayIndex = currentBindlessIndex_;

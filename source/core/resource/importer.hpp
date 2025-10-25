@@ -14,7 +14,7 @@ class ImporterEx
   public:
   ImporterEx() = default;
   ImportResult loadScene(const char* filepath);
-  Mesh loadModel(const char* filepath, gpu::VkMemoryAllocator& allocator);
+  std::unique_ptr<gpu::VkMeshBuffer> loadModel(const char* filepath);
 
   private:
   void processMaterialsAndTextures(const aiScene* scene,

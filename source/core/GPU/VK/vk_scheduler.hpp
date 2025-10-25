@@ -33,6 +33,7 @@ namespace gpu
     gpu::VkSemaphorePool renderFinishSemaphorePool_;
     gpu::VkFencePool maxInflightFence_;
 
+    VkTimelineSemaphoreSubmitInfoKHR submitInfo_;
     gpu::VkContext* pCtxt_;
     PFN_vkReleaseSwapchainImagesEXT vkReleaseSwapchainImagesEXT = nullptr;
   };

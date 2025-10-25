@@ -9,29 +9,38 @@
 #include "vk_swapchain.hpp"
 #include "vk_context.hpp"
 
-namespace gpu{
-  class VkGraphCompiler{
+namespace gpu
+{
+  enum class CompileMode
+  {
+    IMMEDIATE,
+    DEFFERED
+  };
+
+  class VkGraphCompiler
+  {
     friend class VkScheduler;
 
-    VkGraphCompiler(VkContext *pCtxt);
+    VkGraphCompiler(VkContext* pCtxt);
     ~VkGraphCompiler() = default;
-    void compileGraph();
+    void deffered();
+    void Immediate();
 
-  private:
-    void allocate(VkResource *node);
-    void maskingTimeline(VkResource *node);
-    void compileGraph(VkPass *renderPass);
+    private:
+    void allocate(VkResource* node);
+    void maskingTimeline(VkResource* node);
+    void compilePass(VkPass* renderPass);
 
-    void readSync(VkFrameAttachment *image);
-    void readSync(VkHostBuffer *fBuffer);
+    void readSync(VkFrameAttachment* image);
+    void readSync(VkHostBuffer* fBuffer);
 
-    void insertResolve(VkFrameAttachment *image);
-    void writeSync(VkFrameAttachment *image);
-    void writeSync(VkHostBuffer *fBuffer);
+    void insertResolve(VkFrameAttachment* image);
+    void writeSync(VkFrameAttachment* image);
+    void writeSync(VkHostBuffer* fBuffer);
 
     bool needBufferBarrier(uint32_t readPipeline,
                            uint32_t readAccessMask,
-                           VkHostBuffer *readBuffer);
+                           VkHostBuffer* readBuffer);
     uint32_t getResourceUsage(gpu::ResourceUsage usage);
 
     VkPipelineStageFlags decideReadPipeline(gpu::ResourceUsage readUsage);
@@ -42,10 +51,10 @@ namespace gpu{
                                                                 VkAccessFlags dstAccessMask,
                                                                 VkPipelineStageFlags srcStageMask,
                                                                 VkPipelineStageFlags dstStageMask,
-                                                                VkHostBuffer &frameBuffer,
+                                                                VkHostBuffer& frameBuffer,
                                                                 uint32_t srcQFamily,
                                                                 uint32_t dstQFamily,
-                                                                VkHostBuffer *buffer);
+                                                                VkHostBuffer* buffer);
 
     std::function<void(VkCommandBuffer cmd)> buildImageBarrier(VkAccessFlags srcAccessMask,
                                                                VkAccessFlags dstAccessMask,
@@ -55,16 +64,20 @@ namespace gpu{
                                                                VkImageLayout dstImageLayout,
                                                                uint32_t currentQ,
                                                                uint32_t dstQ,
-                                                               gpu::VkFrameAttachment *srcImage);
+                                                               gpu::VkFrameAttachment* srcImage);
 
-    std::function<void(VkCommandBuffer cmd)> buildBufferCopyToImage(gpu::VkHostBuffer *srcBuffer,
-                                                                    gpu::VkFrameAttachment *dstImage);
+    std::function<void(VkCommandBuffer cmd)> buildBufferCopyToImage(gpu::VkHostBuffer* srcBuffer,
+                                                                    gpu::VkFrameAttachment* dstImage);
 
-    std::function<void(VkCommandBuffer cmd)> buildBufferCopyToBuffer(gpu::VkHostBuffer *srcBuffer,
-                                                                     gpu::VkHostBuffer *dstBuffer);
-    VkBool32 renderBegin = false;
-    gpu::VkContext *pCtxt;
+    std::function<void(VkCommandBuffer cmd)> buildBufferCopyToBuffer(gpu::VkHostBuffer* srcBuffer,
+                                                                     gpu::VkHostBuffer* dstBuffer);
+
+    std::vector<std::vector<VkPass*>> waveFrontPasses;
+
+
+    gpu::VkContext* pCtxt;
     std::unordered_set<VkResource*> frameNodes_;
+    VkSemaphorePool semaphorePool_;
   };
 }
 

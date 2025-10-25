@@ -16,15 +16,12 @@
 ///
 ///todo:
 /// Resource UPDATE Setting
-/// 1. Mesh Upload on pannel
-/// 2. TEXTURE UPLOAD AND Deffered Rendering
-/// 3. DLSS
-/// 4. RT setting
-/// 5. compute pass Ascync
-///
-///
-///
-///
+/// 1.Deffered Rendering
+/// 2. DLSS
+/// 3. RT setting
+/// 4. compute pass Ascync
+/// 5. Multi Viewport
+/// 6. V Tuber
 ///
 Engine::Engine() = default;
 
@@ -45,13 +42,9 @@ void Engine::init()
   pipeline_layout_h = Renderer->pipelineLayout_h;
   ui.setupStyle();
   ui.setResourceManager(resourceManager_.get());
-  Mesh mesh = resourceManager_->uploadMesh("C:/Users/dlwog/OneDrive/Desktop/VkMain-out/assets/models/hand.fbx");
-  mns::uptr<gpu::VkMeshBuffer> meshNode = mns::mUptr<gpu::VkMeshBuffer>();
-  meshNode->vertex = mesh.vertices;
-  meshNode->indices = mesh.indices;
-  meshNode->hostUpdate__ = false;
-  meshNode->dirty__ = true;
-  auto ptr= gpu::ctx__->graphBuilder.registerMeshBuffer(meshNode);
+  std::unique_ptr<gpu::VkMeshBuffer> mesh = resourceManager_->
+    uploadMesh("C:/Users/dlwog/OneDrive/Desktop/VkMain-out/assets/models/hand.fbx");
+  auto ptr = gpu::ctx__->graphBuilder.registerMeshBuffer(mesh);
   Renderer->drawHandle_.push_back(ptr);
 }
 
@@ -71,7 +64,7 @@ void Engine::run()
     (scheduler.nextFrame());
     ui.update();
     resourceManager_->updateMaincamState((gpu::ctx__->renderingContext.currentFrame__ + 1) %
-                                          gpu::ctx__->renderingContext.maxInflight__);
+                                         gpu::ctx__->renderingContext.maxInflight__);
     EventManager_.moveProcessEvent();
     Renderer->uploadDepthPass();
     Renderer->uploadQuadDraw();
@@ -81,6 +74,4 @@ void Engine::run()
 }
 
 
-Engine::~Engine()
-{
-};
+Engine::~Engine() = default ;

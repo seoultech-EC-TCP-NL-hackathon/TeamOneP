@@ -1,18 +1,15 @@
-//
-// Created by ljh on 25. 9. 16..
-//
-
-// importer_ex.cpp
+#include <memory>
 #include <stdexcept>
 #include <glm/glm.hpp>
 #include <vertex.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <common.hpp>
-#include "importer.hpp"
-#include "../scene_graph/importer_desc.hpp"
 #include <assimp/postprocess.h>
 #include <filesystem>
+#include <common.hpp>
 #include <array>
+#include "importer.hpp"
+#include "../scene_graph/importer_desc.hpp"
+#include "vk_resource.hpp"
 using std::string;
 namespace fs = std::filesystem;
 
@@ -512,8 +509,7 @@ void ImporterEx::processLights(const aiScene* scene, ImportResult& out)
   }
 }
 
-///simple
-Mesh ImporterEx::loadModel(const char* filepath, gpu::VkMemoryAllocator& allocator)
+std::unique_ptr<gpu::VkMeshBuffer> ImporterEx::loadModel(const char* filepath)
 {
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(filepath,
@@ -538,12 +534,10 @@ Mesh ImporterEx::loadModel(const char* filepath, gpu::VkMemoryAllocator& allocat
     {
       VertexAll vertex{};
 
-      // position
       vertex.position[0] = mesh->mVertices[i].x;
       vertex.position[1] = mesh->mVertices[i].y;
       vertex.position[2] = mesh->mVertices[i].z;
 
-      // normal
       if (mesh->HasNormals())
       {
         vertex.normal[0] = mesh->mNormals[i].x;
@@ -617,7 +611,10 @@ Mesh ImporterEx::loadModel(const char* filepath, gpu::VkMemoryAllocator& allocat
     }
   }
   spdlog::info("import models");
-  return Mesh(vertices, indices, allocator);
+  std::unique_ptr<gpu::VkMeshBuffer> mesh = std::make_unique<gpu::VkMeshBuffer>();
+  mesh->vertex = vertices;
+  mesh->indices = indices;
+  return std::move(mesh);
 }
 
 // 카메라

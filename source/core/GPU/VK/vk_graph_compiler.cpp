@@ -1,9 +1,9 @@
 #include <filesystem>
 #include <vulkan/vulkan.h>
 #include <sys/stat.h>
+#include <algorithm>
 #include <unordered_set>
 #include <deque>
-#include <algorithm>
 #include "vk_context.hpp"
 #include "vk_discard_pool.hpp"
 #include "vk_resource_allocator.hpp"
@@ -19,11 +19,114 @@ namespace gpu
   //todo : if need,
   //       insert write->reader dependency
   VkGraphCompiler::VkGraphCompiler(VkContext* pCtxt) :
-    pCtxt(pCtxt)
+    pCtxt(pCtxt), semaphorePool_(pCtxt)
   {
   }
 
-  void VkGraphCompiler::compileGraph()
+  void VkGraphCompiler::deffered()
+  {
+    ///todo:
+    /// 1.pass: write->reader depenency check
+    ///  2.row sort and find prologue pass, epilogue pass
+    ///  3.for first prologue pass to epilogue pass,
+    ///   4.find not usable pass and cull
+    ///   5.pass cull and merge pass with async compute pass,
+    ///     make wave front pass
+    ///   6.frame resource memory friend setting
+    /// ->topological sort
+    /// ->compile pass
+    //std::vector<VkPass*>& passes = pCtxt->uploadedPass;
+    // for (auto* pass : passes):
+    //write->reader dependency
+    //for (gpu::VkPass* pass : passes)
+    //{
+    //  for (auto& write__ : pass->write__)
+    //  {
+    //    maskingTimeline(write__);
+    //    for (auto& reader__ : write__->reader__)
+    //    {
+    //      if (pass != reader__)
+    //      {
+    //        //W->R
+    //        reader__->dependency__.insert(pass);
+    //        pass->dependent__.insert(reader__);
+    //      }
+    //    }
+    //    //W->W
+    //  }
+    /// std::unordered_set<VkResource*> firstWrite
+    /// std::unordered_set<VkResource*> lastProducted
+    /// std::vector<VkPass*> passStack ;
+    /// /// pass-> multi queue and product cover
+    /// for(auto last : lastProducted):
+    ///   for (auto writer: last->write):
+    ///    RECURSIVE_FIND_WRITER()
+    ///     if(not find)->cullpass
+    ///
+    /// this time: pass is culled and row was sorted
+    /// std::unordered_set<VkResource*> useResource
+    /// std::unordered_map<memType*, VkFriendMemory*> memFriend
+    /// for(auto pass: passStack) :
+    ///   ( auto write: pass->write  )
+    ///   if (memFriend.find(write->memType))
+    ///    -> write->memFriend =
+    ///   useResource->insert(write)
+    ///   write->lastwriter = pass
+    ///   write->timelineMasking = masking
+    ///   memFriend[write]  = memFriend
+    ///
+    ///for(pass: passStack)
+    ///  for(read: pass->read)
+    ///     collectBarrier(read)
+    ///  for(write: pass->write
+    ///     collectBarrier(write)
+    ///  pass->write,read, sync,pass Write RenderPassType setting
+    ///  compiledPass.pushBack()
+    ///   std::deque<VkPass*> ready;
+    ///
+    ///
+    ///
+    ///
+    /// for (auto* pass : pCtxt->uploadedPass)
+    /// {
+    ///   pass->linkCount = pass->dependency__.size();
+    ///   if (pass->dependency__.size() == 0)
+    ///   {
+    ///     pass->dependency__.clear();
+    ///     ready.push_back(pass);
+    ///   }
+    /// }
+    /// while (!ready.empty())
+    /// {
+    ///   VkPass* pass = ready.front();
+    ///   ready.pop_front();
+    ///   compilePass(pass);
+    ///   for (auto* postPass : pass->dependent__)
+    ///   {
+    ///     postPass->linkCount--;
+    ///     if (postPass->linkCount == 0)
+    ///     {
+    ///       ready.push_back(postPass);
+    ///     }
+    ///   }
+    ///   pass->dependent__.clear();
+    /// }
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///VkDependencyInfo
+    /// depencency= >collected barriers register
+    ///VkPass pass
+    /// pass.type = dependencyPass
+    /// pass.lambda= buildDependencyPass ;
+    /// compiledPass.push_back(dependencyPass)
+    ///VkPass pass. presentpass pushback
+    //}
+  }
+
+  void VkGraphCompiler::Immediate()
   {
     pCtxt->compiledPass.clear();
     VkResource* node = pCtxt->nodeHash_[pCtxt->graphBuilder.getSwapchainImage()];
@@ -54,8 +157,6 @@ namespace gpu
         write__->lastWriter__ = pass;
       }
     }
-    ///todo:
-    /// find Last Comsummer and trimming
     std::deque<VkPass*> ready;
     for (auto* pass : pCtxt->uploadedPass)
     {
@@ -70,7 +171,7 @@ namespace gpu
     {
       VkPass* pass = ready.front();
       ready.pop_front();
-      compileGraph(pass);
+      compilePass(pass);
       for (auto* postPass : pass->dependent__)
       {
         postPass->linkCount--;
@@ -116,7 +217,7 @@ namespace gpu
       {
         VkFrameAttachment* frameImage = reinterpret_cast<gpu::VkFrameAttachment*>(_read);
         frameImage->usage__ = getResourceUsage(frameImage->usage_);
-        pCtxt->pResourceAllocator->buildImageNode(frameImage);
+        pCtxt->pResourceAllocator->buildFrameAttachment(frameImage);
       }
       if (_read->type_ == ResourceType::BUFFER)
       {
@@ -129,6 +230,13 @@ namespace gpu
       {
         VkMeshBuffer* mesh = reinterpret_cast<gpu::VkMeshBuffer*>(_read);
         pCtxt->pResourceAllocator->buildMeshNode(mesh);
+      }
+      if (_read->type_ == ResourceType::TEXTURE)
+      {
+        VkTexture* frameImage = reinterpret_cast<gpu::VkTexture*>(_read);
+        pCtxt->pResourceAllocator->buildTexture(frameImage);
+        frameImage->descriptorSet__ = pCtxt->pDescriptorAllocator->allocate(pCtxt->renderingContext.currentFrame__);
+        pCtxt->pDescriptorAllocator->uploadBindlessTextureSet(frameImage);
       }
     }
     _read->allocated__ = true;
@@ -287,8 +395,6 @@ namespace gpu
     {
       return VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
     }
-
-
     if (readUsage & (gpu::ResourceUsage::DEPTH_STENCIL_ATTACHMENT |
       gpu::ResourceUsage::SHADOW_BUFFER))
     {
@@ -311,7 +417,7 @@ namespace gpu
     throw std::runtime_error("unsupported resource usage");
   }
 
-  void gpu::VkGraphCompiler::compileGraph(VkPass* renderPass)
+  void gpu::VkGraphCompiler::compilePass(VkPass* renderPass)
   {
     for (auto* _read : renderPass->read__)
     {
@@ -324,7 +430,7 @@ namespace gpu
         if (readImage->descriptorSet__ == VK_NULL_HANDLE)
         {
           readImage->descriptorSet__ = pCtxt->pDescriptorAllocator->allocate(pCtxt->renderingContext.currentFrame__);
-          pCtxt ->pDescriptorAllocator->uploadBindlessTextureSet(readImage);
+          pCtxt->pDescriptorAllocator->uploadBindlessTextureSet(readImage);
         }
       }
       if (_read->type_ == gpu::ResourceType::BUFFER)
@@ -622,38 +728,3 @@ namespace gpu
     return lambda;
   }
 }
-
-//write->reader dependency
-//for (gpu::VkPass* pass : passes)
-//{
-//  for (auto& write__ : pass->write__)
-//  {
-//    maskingTimeline(write__);
-//    for (auto& reader__ : write__->reader__)
-//    {
-//      if (pass != reader__)
-//      {
-//        //W->R
-//        reader__->dependency__.insert(pass);
-//        pass->dependent__.insert(reader__);
-//      }
-//    }
-//    //W->W
-//    if (write__->lastWriter__ != nullptr &&
-//      write__->lastWriter__ != pass)
-//    {
-//      pass->dependency__.insert(write__->lastWriter__);
-//      write__->lastWriter__->dependent__.insert(pass);
-//    }
-//    write__->lastWriter__ = pass;
-//  }
-//  for (auto read__ : pass->read__)
-//  {
-//    //pass->link(read__)
-//    if (!read__->allocated__ ||
-//      read__->dirty__)
-//    {
-//      allocate(read__);
-//    }
-//  }
-//}

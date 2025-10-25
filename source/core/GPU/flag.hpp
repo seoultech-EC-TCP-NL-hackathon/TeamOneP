@@ -33,6 +33,7 @@ namespace gpu
     PIPELINE = 3,
     SHADER   = 4,
     MESH     = 5,
+    TEXTURE  = 6,
   };
 
   enum class MemorySpace: uint32_t

@@ -90,7 +90,6 @@ set(COMMON_SRC
         source/core/io/log_sink.cpp
         source/core/io/event_manager.cpp
         source/resource/static_buffer.cpp
-        source/core/GPU/texture.cpp
         source/core/scene_graph/mesh.cpp
         #source/feature/sculptor/sculptor.cpp
         #source/feature/sculptor/dynamic_mesh.cpp

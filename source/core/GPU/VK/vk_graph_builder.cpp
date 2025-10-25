@@ -207,6 +207,18 @@ namespace gpu
     flag();
   }
 
+  VkTexture* VkGraphBuilder::registerTexture(std::unique_ptr<VkTexture>& texture)
+  {
+    uint32_t id = ctx__->nodeId_;
+    texture->nodeId_ = ctx__->nodeId_++;
+    auto ptr = texture.get();
+    ctx__->nodeHash_[texture->nodeId_] = texture.get();
+    ctx__->nodes_.push_back(std::move(texture));
+    flag();
+    return ptr;
+  }
+
+
   VkResourceId VkGraphBuilder::getSwapchainImage()
   {
     if (ctx__->pSwapChainContext->broked__)
@@ -263,6 +275,27 @@ namespace gpu
     depth->descriptorArrayIndex = 0;
     auto ptr = depth.get();
     gpu::ctx__->graphBuilder.registerImage(depth);
+    return ptr;
+  }
+
+  gpu::VkFrameAttachment* VkGraphBuilder::buildGBufferHandle(uint32_t format)
+  {
+    mns::uptr<gpu::VkFrameAttachment> gBuffer = mns::mUptr<gpu::VkFrameAttachment>();
+    gBuffer->type_ = gpu::ResourceType::IMAGE;
+    gBuffer->usage_ = gpu::ResourceUsage::G_BUFFER;
+    gBuffer->aspectMask__ = VK_IMAGE_ASPECT_COLOR_BIT;
+    gBuffer->format__ = static_cast<VkFormat>(format);
+    gBuffer->height__ = gpu::ctx__->pSwapChainContext->extent__.height;
+    gBuffer->width__ = gpu::ctx__->pSwapChainContext->extent__.width;
+    gBuffer->mSpace_ = gpu::MemorySpace::DEVICE_LOCAL;
+    gBuffer->lifetime = gpu::VkResourceLifetime::FRAME;
+    gBuffer->mipLevels__ = 1;
+    gBuffer->levelCount__ = 1;
+    gBuffer->descriptorSet__ = VK_NULL_HANDLE;
+    gBuffer->bindigIndex = gpu::BINDLESS_TEXTURE;
+    gBuffer->descriptorArrayIndex = 0;
+    auto ptr = gBuffer.get();
+    gpu::ctx__->graphBuilder.registerImage(gBuffer);
     return ptr;
   }
 }

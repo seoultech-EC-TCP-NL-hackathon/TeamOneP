@@ -5,6 +5,7 @@
 #ifndef MYPROJECT_VK_TEXTURE_HPP
 #define MYPROJECT_VK_TEXTURE_HPP
 #include "vk_resource.hpp"
+#include "stb_image/stb_image.h"
 
 namespace gpu
 {
@@ -36,6 +37,7 @@ namespace gpu
     uint32_t bindigIndex = 0;
     VkBool32 writen__ = false;
     bool ktx = false;
+
     private:
     friend class VkGraph;
     friend class VkGraphCompiler;
@@ -50,7 +52,34 @@ namespace gpu
     VkImageLayout writeLayout__ = VK_IMAGE_LAYOUT_UNDEFINED;
     VkImageUsageFlags usage__;
   };
-  using VkTexture = VkFrameAttachment;
+
+  class VkTexture : public VkFrameAttachment
+  {
+    public:
+    std::string filepath__;
+    stbi_uc* pixels__;
+    VkBool32 ready = VK_FALSE;
+    VkDeviceSize imageSize__ = 0;
+    inline void loadImage()
+    {
+      int32_t texWidth, texHeight, texChannels;
+      stbi_uc* pixels = stbi_load(filepath__.c_str(),
+                                  &texWidth,
+                                  &texHeight,
+                                  &texChannels,
+                                  STBI_rgb_alpha);
+      if (!pixels)
+      {
+        spdlog::info("failed to load texture image!");
+        return;
+      }
+      pixels__ = (stbi_uc*)pixels;
+      this->width__ = texWidth;
+      this->height__ = texHeight;
+      this->aspectMask__ = VK_SAMPLE_COUNT_1_BIT;
+      ready = VK_TRUE;
+    }
+  };
 }
 
 #endif //MYPROJECT_VK_TEXTURE_HPP

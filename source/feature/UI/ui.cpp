@@ -77,24 +77,24 @@ void UI::setupStyle()
 }
 void UI::uploadImageToUI()
 {
-  auto& backgroundTextures_ = pResourceManager_->uiNeedTextures;
-  for (auto& texture : backgroundTextures_)
-  {
-    if (texture->waitFrame > 0)
-    {
-      texture->waitFrame--;
-      continue;
-    }
-    VkDescriptorSet textureDesc = ImGui_ImplVulkan_AddTexture(texture->sampler,
-                                                              texture->textureImageView,
-                                                              VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-    bindingIndex index = texture->bindigIndex;
-    UITexture uiTexture;
-    uiTexture.descriptorSet = textureDesc;
-    uiTexture.index = index;
-    uiTextures_.push_back(uiTexture);
-    backgroundTextures_.pop_back();
-  }
+  //auto& backgroundTextures_ = pResourceManager_->uiNeedTextures;
+  //for (auto& texture : backgroundTextures_)
+  //{
+  //  if (texture->waitFrame > 0)
+  //  {
+  //    texture->waitFrame--;
+  //    continue;
+  //  }
+  //  VkDescriptorSet textureDesc = ImGui_ImplVulkan_AddTexture(texture->sampler,
+  //                                                            texture->textureImageView,
+  //                                                            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+  //  bindingIndex index = texture->bindigIndex;
+  //  UITexture uiTexture;
+  //  uiTexture.descriptorSet = textureDesc;
+  //  uiTexture.index = index;
+  //  uiTextures_.push_back(uiTexture);
+  //  backgroundTextures_.pop_back();
+  //}
 }
 
 

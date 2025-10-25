@@ -28,7 +28,8 @@ namespace gpu
   enum class RenderingAttachmentType
   {
     DEPTH,
-    COLOR
+    COLOR,
+    G_BUFFER
   };
 
   class VkPipelineProgram

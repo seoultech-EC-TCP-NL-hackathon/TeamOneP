@@ -79,7 +79,6 @@ private:
   std::vector<UICall> callStack_;
   std::shared_ptr<sys::LogSink> sink_;
   VkDescriptorSet backgroundDescriptor_;
-  VulkanTexture *backgroundTexture_;
   ResourceManager *pResourceManager_;
 };
 

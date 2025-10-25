@@ -36,8 +36,9 @@ namespace gpu
     VkSurfaceKHR surfaceh__;
     VkPhysicalDevice physicalDeviceh__;
     VkDevice deviceh__;
-    VkQueue presentQh__;
     VkQueue graphicsQh__;
+    VkQueue computeQh__;
+    VkQueue presentQh__;
     uint32_t graphicsFamailyIdx__;
     uint32_t presentFamilyIdx__;
     VkExtent2D initExtent__{2000, 1200};

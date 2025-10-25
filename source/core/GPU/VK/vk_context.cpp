@@ -53,7 +53,7 @@ namespace gpu
 
     bool isComplete() const
     {
-      return graphicsFamily.has_value() && presentFamily.has_value();
+      return graphicsFamily.has_value() && presentFamily.has_value() &&  computeFamily.has_value();
     }
   };
 
@@ -80,6 +80,8 @@ namespace gpu
     VkDevice device_h;
     VkQueue present_q;
     VkQueue graphics_q;
+    VkQueue compute_q;
+    uint32_t compute_family;
     uint32_t graphics_family;
     uint32_t present_family;
     VkExtent2D extent = {2400, 1200};
@@ -316,6 +318,11 @@ namespace gpu
           indices.graphicsFamily = i;
         }
 
+        if (queueFamily.queueFlags & static_cast<uint32_t>(VK_QUEUE_TRANSFER_BIT))
+        {
+          indices.computeFamily = i;
+        }
+
         VkBool32 presentSupport = false;
         vkGetPhysicalDeviceSurfaceSupportKHR(physical_device, i, surface_h, &presentSupport);
         if (presentSupport)
@@ -351,6 +358,7 @@ namespace gpu
         physical_device_h = physical_device;
         score = tempScore;
         graphics_family = indices.graphicsFamily.value();
+        compute_family  = indices.computeFamily.value();
         present_family = indices.presentFamily.value();
       }
     }
@@ -398,6 +406,7 @@ namespace gpu
 
     std::set<uint32_t> uniqueQueueFamilies = {
       graphics_family,
+      compute_family,
       present_family
     };
 
@@ -559,6 +568,7 @@ namespace gpu
     spdlog::info("LogicalDevice: Device created successfully.");
 
     vkGetDeviceQueue(device_h, graphics_family, 0, &graphics_q);
+    vkGetDeviceQueue(device_h, compute_family, 0 , &compute_q);
     vkGetDeviceQueue(device_h, present_family, 0, &present_q);
     spdlog::info("LogicalDevice: Queues obtained.");
 
@@ -567,8 +577,9 @@ namespace gpu
     deviceh__ = device_h;
     surfaceh__ = surface_h;
     physicalDeviceh__ = physical_device_h;
-    presentQh__ = present_q;
     graphicsQh__ = graphics_q;
+    computeQh__ = compute_q;
+    presentQh__ = present_q;
     graphicsFamailyIdx__ = graphics_family;
     presentFamilyIdx__ = graphics_family;
     vkGetPhysicalDeviceProperties(this->physicalDeviceh__,

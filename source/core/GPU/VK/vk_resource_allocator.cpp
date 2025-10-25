@@ -17,10 +17,10 @@ gpu::VkResourceAllocator::~VkResourceAllocator() = default;
 
 void gpu::VkResourceAllocator::buildMeshNode(VkMeshBuffer* buffer)
 {
-  buffer->vSize__= sizeof(buffer->vertex[0])*buffer->vertex.size();
-  buffer->iSize__= sizeof(buffer->indices[0])*buffer->indices.size();
-  buffer->vData__= buffer->vertex.data();
-  buffer->iData__= buffer->indices.data();
+  buffer->vSize__ = sizeof(buffer->vertex[0]) * buffer->vertex.size();
+  buffer->iSize__ = sizeof(buffer->indices[0]) * buffer->indices.size();
+  buffer->vData__ = buffer->vertex.data();
+  buffer->iData__ = buffer->indices.data();
   buffer->vertexBuffer__ = buildBufferHandle(buffer->vSize__,
                                              VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
                                              VK_BUFFER_USAGE_TRANSFER_DST_BIT);
@@ -65,9 +65,10 @@ gpu::VkHostBuffer gpu::VkResourceAllocator::getStagingBuffer(void* data,
 }
 
 
-void gpu::VkResourceAllocator::buildImageNode(VkFrameAttachment* image)
+void gpu::VkResourceAllocator::buildFrameAttachment(VkFrameAttachment* image)
 {
   image->allocated__ = VK_TRUE;
+
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
   imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -110,6 +111,7 @@ void gpu::VkResourceAllocator::buildImageNode(VkFrameAttachment* image)
       image->allocation__ = mBindImage(image->imageh__, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
       break;
   }
+
   VkImageViewCreateInfo view{};
   view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
   view.image = image->imageh__;
@@ -120,6 +122,7 @@ void gpu::VkResourceAllocator::buildImageNode(VkFrameAttachment* image)
   view.subresourceRange.levelCount = 1;
   view.subresourceRange.baseArrayLayer = 0;
   view.subresourceRange.layerCount = 1;
+
   if (vkCreateImageView(pCtxt->deviceh__,
                         &view,
                         nullptr,
@@ -219,7 +222,7 @@ void gpu::VkResourceAllocator::buildImageCopyPass(VkBuffer buffer,
     .read__ = {},
     .write__ = {},
     .execute =
-    [&buffer, texture](VkCommandBuffer cmd)
+    [buffer, texture](VkCommandBuffer cmd)
     {
       VkBufferImageCopy region{};
       region.bufferOffset = 0;
@@ -250,24 +253,33 @@ void gpu::VkResourceAllocator::buildImageCopyPass(VkBuffer buffer,
   pCtxt->compiledPass.push_back(copyPass);
 }
 
+//immediate upload
 void gpu::VkResourceAllocator::buildImageBarrierPass(VkImage img,
                                                      VkPipelineStageFlagBits src,
-                                                     VkPipelineStageFlags dst)
+                                                     VkPipelineStageFlags dst,
+                                                     VkAccessFlags srcAccess,
+                                                     VkAccessFlags dstAccess,
+                                                     VkImageLayout oldLayout,
+                                                     VkImageLayout newLayout)
 {
   VkPass BarrierPass{
     .passType = RenderPassType::BARRIER_PASS,
     .read__ = {},
     .write__ = {},
     .execute =
-    [&img,
-      &src,
-      &dst]
+    [img,
+      src,
+      dst,
+      srcAccess,
+      dstAccess,
+      oldLayout,
+      newLayout]
   (VkCommandBuffer cmd)
     {
       VkImageMemoryBarrier barrier{};
       barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-      barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-      barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+      barrier.oldLayout = oldLayout;
+      barrier.newLayout = newLayout;
       barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
       barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
       barrier.image = img;
@@ -276,8 +288,8 @@ void gpu::VkResourceAllocator::buildImageBarrierPass(VkImage img,
       barrier.subresourceRange.levelCount = 1;
       barrier.subresourceRange.baseArrayLayer = 0;
       barrier.subresourceRange.layerCount = 1;
-      barrier.srcAccessMask = 0;
-      barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+      barrier.srcAccessMask = srcAccess;
+      barrier.dstAccessMask = dstAccess;
       vkCmdPipelineBarrier(cmd,
                            src,
                            dst,
@@ -316,8 +328,6 @@ gpu::VkAllocation gpu::VkResourceAllocator::mBindImage(VkImage image,
   }
   return allocation;
 }
-
-
 
 
 void gpu::VkResourceAllocator::hostUpdate(VkHostBuffer* buffer__)
@@ -384,6 +394,9 @@ VkBuffer gpu::VkResourceAllocator::buildBufferHandle(VkDeviceSize size,
 //
 void gpu::VkResourceAllocator::buildTexture(gpu::VkTexture* texture)
 {
+  texture->loadImage();
+  texture->allocated__ = VK_TRUE;
+
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
   imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -400,11 +413,13 @@ void gpu::VkResourceAllocator::buildTexture(gpu::VkTexture* texture)
   imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
   imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
   imageInfo.pNext = nullptr;
+
   if (vkCreateImage(pCtxt->deviceh__, &imageInfo, nullptr, &texture->imageh__) != VK_SUCCESS)
   {
     spdlog::info("error ");
     throw std::runtime_error("fail to make texture Image buffer");
   }
+
   mBindImage(texture->imageh__,
              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
@@ -429,11 +444,31 @@ void gpu::VkResourceAllocator::buildTexture(gpu::VkTexture* texture)
   {
     throw std::runtime_error("error to make texture view");
   }
-  VkDeviceSize size = texture->width__ * texture->height__ * 4;
-  VkHostBuffer staging = getStagingBuffer(texture->data__, size);
-  //buildImageBarrierPass(texture->imageh__ )
-  //buildImageCopyPass.
-  //buildImageBarrierPass
+  texture->imageSize__ = texture->width__ * texture->height__ * 4;
+  VkHostBuffer staging = getStagingBuffer(texture->pixels__,
+                                          texture->imageSize__);
+  buildImageBarrierPass(texture->imageh__,
+                        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        VK_ACCESS_NONE_KHR,
+                        VK_ACCESS_TRANSFER_WRITE_BIT,
+                        VK_IMAGE_LAYOUT_UNDEFINED,
+                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+  buildImageCopyPass(staging.bufferh_, texture);
+
+  buildImageBarrierPass(texture->imageh__,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                        VK_ACCESS_TRANSFER_WRITE_BIT,
+                        VK_ACCESS_SHADER_READ_BIT,
+                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+  texture->currentLayout__ = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+  texture->currentPipeline__ = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+  texture->currentAccessMask__ = VK_ACCESS_SHADER_READ_BIT;
+  stbi_image_free(texture->pixels__);
 }
 
 

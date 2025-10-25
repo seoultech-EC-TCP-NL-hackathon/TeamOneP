@@ -24,7 +24,7 @@ namespace gpu
                   uint32_t dstBindingIndex,
                   uint32_t dstBindingArrayIndex,
                   uint32_t dstCount);
-    void uploadBindlessTextureSet(VkTexture* texture);
+    void uploadBindlessTextureSet(gpu::VkFrameAttachment* texture);
 
 
     void update();

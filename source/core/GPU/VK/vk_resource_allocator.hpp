@@ -23,7 +23,7 @@ namespace gpu
     VkResourceAllocator(VkContext* pCtxt);
     ~VkResourceAllocator();
     void buildMeshNode(VkMeshBuffer* buffer);
-    void buildImageNode(VkFrameAttachment* image);
+    void buildFrameAttachment(VkFrameAttachment* image);
     void uploadBufferTransferPass(VkBuffer src,
                                   VkBuffer dst,
                                   VkDeviceSize srcOffset,
@@ -53,7 +53,8 @@ namespace gpu
                             VkMemoryPropertyFlags desiredFlag);
     void buildImageBarrierPass(VkImage img,
                                VkPipelineStageFlagBits src,
-                               VkPipelineStageFlags dst);
+                               VkPipelineStageFlags dst, VkAccessFlags srcAccess, VkAccessFlags dstAccess, VkImageLayout oldLayout, VkImageLayout
+                               newLayout);
 
     void allocateSampler();
     void allocateDescriptorSet();

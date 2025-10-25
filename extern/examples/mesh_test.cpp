@@ -42,10 +42,10 @@ int main()
   ShaderModule fragshader(device_h);
   ShaderModule compshader(device_h);
   std::string vertPath = "/home/ljh/바탕화면/vk/source/shader/vert.vert";
-  std::string fragPath = "/home/ljh/바탕화면/vk/source/shader/simple_light_frag.frag";
+  std::string depthOnly = "/home/ljh/바탕화면/vk/source/shader/simple_light_frag.frag";
   //std::string compPath = "/home/ljh/바탕화면/vk/source/shader/sculpt_compute.comp"
   vertshader.setShader(vertPath, shaderc_vertex_shader);
-  fragshader.setShader(fragPath, shaderc_fragment_shader);
+  fragshader.setShader(depthOnly, shaderc_fragment_shader);
   CommandPoolCreateInfo commandPoolInfo;
   commandPoolInfo.device           = device_h;
   commandPoolInfo.queueFamilyIndex = context.graphics_family;

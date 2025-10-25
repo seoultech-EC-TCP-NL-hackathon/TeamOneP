@@ -1,8 +1,13 @@
 #version 450
 #extension GL_EXT_nonuniform_qualifier: require
 
-layout (location = 0) in vec2 uv;
-layout (location = 0) out vec4 outColor;
+layout(location = 0) in vec3 fragPosition;
+layout(location = 1) in vec3 fragNormal;
+layout(location = 2) in vec2 fragUV;
+
+layout(location = 2) out vec4 gAlbedo;
+layout(location = 0) out vec4 gPosition;
+layout(location = 1) out vec4 gNormal;
 
 layout (set = 0, binding = 2) uniform sampler2D bindlessTexture[];
 
@@ -16,10 +21,8 @@ layout(push_constant) uniform PushData {
     int lightningBuffer;
     int postProcessBuffer;
 } pc;
-
-void main() {
-    float d = texture(bindlessTexture[pc.depthBuffer], uv).r;
-    float dep = d*10;
-    float z = clamp(pow(dep, 0.5), 0.0, 1.0);
-    outColor = vec4(1-z, 1- z, 1-z, 1.0);
+void main()
+{
+    vec3 albedo = texture(bindlessTexture[pc.gBufferPosition], uv).r;
+    outColor = vec4(albedo, 1.0);
 }

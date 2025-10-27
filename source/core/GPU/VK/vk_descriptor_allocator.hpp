@@ -13,7 +13,6 @@ namespace gpu
   {
     public:
     VkDescriptorAllocator(VkContext* pCtxt);
-    VkDescriptorSet allocate(uint32_t currentFrame);
     ~VkDescriptorAllocator() = default;
     void buildDefaultLayout();
     VkDescriptorSet allocateSet(VkDescriptorSetLayout layout ,
@@ -30,13 +29,12 @@ namespace gpu
     void update();
     std::vector<VkDescriptorSet> descriptorSets;
     VkDescriptorSetLayout defaultLayout;
+    gpu::VkSamplerBuilder samplerBuilder_;
     private:
     VkContext* pCtxt;
     uint32_t currentBindlessIndex_ = 0;
     VkDescriptorPool pool;
     VkDescriptorSet baseSet;
-    gpu::VkSamplerBuilder samplerBuilder_;
-    std::unordered_map<VkDescriptorSetLayout, VkDescriptorSet> descriptorSets_;
     std::vector<VkWriteDescriptorSet> writedSets_;
     std::vector<VkDescriptorBufferInfo> bufferInfos_;
     std::vector<VkDescriptorImageInfo> imageInfos_;

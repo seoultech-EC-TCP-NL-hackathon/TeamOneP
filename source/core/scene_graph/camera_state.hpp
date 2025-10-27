@@ -45,15 +45,25 @@ struct CameraUBO
 {
   glm::mat4 view{};
   glm::mat4 proj{};
+
   glm::vec3 camPos{};
+  float padding ;
+
+  float fov_ = glm::radians(45.0f);
+  float aspect = 20 / 12;
+  float nearPlane = 0.01f;
+  float farPlane = 1000.0f;
+
+  glm::mat4 invView{};
+  glm::mat4 invProj{};
 };
 
 struct ProjectionConfig
 {
   float fov_ = glm::radians(45.0f);
   float aspect = 20 / 12;
-  float nearPlane = 0.01f;
-  float farPlane = 1000.0f;
+  float nearPlane = 0.1f;
+  float farPlane = 10000.0f;
 };
 
 struct MouseCache
@@ -63,7 +73,6 @@ struct MouseCache
   double lastWheelOffsetX = 0;
   double lastWheelOffsetY = 0;
 };
-
 
 class Viewport
 {
@@ -108,7 +117,7 @@ class UserCamera
   MouseCache cache;
   float delta = 0.01;
   CameraUBO ubo;
-  bool noUpdate =false ;
+  bool noUpdate = false;
 };
 
 class VRCamera

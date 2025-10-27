@@ -13,6 +13,9 @@ namespace gpu
   class VkPass
   {
     public:
+    std::string name;
+    VkPass();
+    void clear();
     std::unordered_set<VkPass*> dependency__ = {};
     std::unordered_set<VkPass*> dependent__ = {};
     RenderPassType passType;
@@ -41,7 +44,7 @@ namespace gpu
     } passParameter__;
 
     void link();
-    friend class VkGraphCompiler;
+    friend class VkGraphBuilder;
     friend class VkGraphBuilder;
     friend class VkResourceAllocator;
     friend class VkGraph;

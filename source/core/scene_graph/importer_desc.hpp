@@ -7,6 +7,11 @@
 #include <glm/gtc/quaternion.hpp>
 #include "../resource/vertex.hpp"
 
+namespace gpu
+{
+  struct VertexAll;
+}
+
 enum class PrimitiveType: uint32_t{
   POINT    = 0x1,
   LINE     = 0x2,
@@ -17,7 +22,7 @@ enum class PrimitiveType: uint32_t{
 /// todo: setting primitive -> batch rendering
 struct MeshDesc{
   std::string name;
-  std::vector<VertexAll> vertices;
+  std::vector<gpu::VertexAll> vertices;
   std::vector<uint32_t> indices;
   uint32_t primitives;
   uint32_t numVertices;

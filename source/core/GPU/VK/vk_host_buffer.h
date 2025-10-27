@@ -10,7 +10,7 @@ namespace gpu
 {
   class VkHostBuffer : public VkResource
   {
-    friend class VkGraphCompiler;
+    friend class VkGraphBuilder;
     friend class VkGraphBuilder;
     friend class VkResourceAllocator;
     friend class VkGraph;

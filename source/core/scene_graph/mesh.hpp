@@ -1,6 +1,5 @@
 #ifndef MESH_HPP
 #define MESH_HPP
-#include <static_buffer.hpp>
 #include "../resource/vertex.hpp"
 #include "material.hpp"
 #include "vk_memory_allocator.hpp"
@@ -28,8 +27,6 @@ struct Mesh{
   void recenterMesh();
   void reNomalCompute();
   std::string name;
-  std::unique_ptr<StaticBuffer> vertexBuffer;
-  std::unique_ptr<StaticBuffer> indexBuffer;
   std::vector<VertexAll> vertices;
   std::vector<uint32_t> indices;
   gpu::VkMemoryAllocator *allocator;

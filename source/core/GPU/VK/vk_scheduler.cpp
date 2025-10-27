@@ -3,7 +3,7 @@
 //
 #include "vk_context.hpp"
 #include "vk_scheduler.hpp"
-#include "vk_graph_compiler.hpp"
+#include "vk_graph_builder.hpp"
 #include "vk_graph.hpp"
 
 gpu::VkScheduler::VkScheduler(gpu::VkContext* context) :
@@ -12,8 +12,7 @@ gpu::VkScheduler::VkScheduler(gpu::VkContext* context) :
   renderFinishSemaphorePool_(context),
   maxInflightFence_(context),
   commandBufferPool_(context),
-  graphs_(context),
-  graphCompiler_(context)
+  graphs_(context)
 {
   vkReleaseSwapchainImagesEXT = (PFN_vkReleaseSwapchainImagesEXT)vkGetDeviceProcAddr(context->deviceh__,
        "vkReleaseSwapchainImagesEXT");
@@ -35,7 +34,6 @@ gpu::VkScheduler::~VkScheduler() = default;
 
 VkBool32 gpu::VkScheduler::nextFrame()
 {
-
   VkFence vkFence = maxInflightFence_.fences[pCtxt_->
                                              renderingContext.currentFrame__];
 
@@ -71,13 +69,11 @@ VkBool32 gpu::VkScheduler::nextFrame()
     throw std::runtime_error("Could not acquire the next swap chain image!");
   }
   //physical reosource mapping on table
-  auto swapchain = reinterpret_cast<VkFrameAttachment*>(pCtxt_->nodeHash_[pCtxt_->graphBuilder.getSwapchainImage()]);
-  swapchain->writen__= false;
-  swapchain->nodeName_ = "swapchain image";
-  swapchain->imageh__ = pCtxt_->pSwapChainContext->img__[pCtxt_->renderingContext.inflightIndex__[pCtxt_->
-    renderingContext.currentFrame__]];
-  swapchain->imageView__ = pCtxt_->pSwapChainContext->imgView__[pCtxt_->renderingContext.inflightIndex__[pCtxt_->
-    renderingContext.currentFrame__]];
+  if (pCtxt_->dirty_)
+  {
+    pCtxt_->dirty_ = false;
+    pCtxt_->compiledPass.clear();
+  }
   return result;
 }
 
@@ -99,12 +95,7 @@ void gpu::VkScheduler::run()
   {
     throw std::runtime_error("failed to begin recording command buffer!");
   }
-
-  if (pCtxt_->dirty_)
-  {
-    pCtxt_->dirty_ = false;
-    graphCompiler_.Immediate();
-  }
+  ctx__->pGraphBuilder->Immediate();
   graphs_.execute(cmd);
   vkEndCommandBuffer(cmd);
   ///for (auto pass: graphCompiler_.waveFrontPasses)
@@ -139,7 +130,32 @@ void gpu::VkScheduler::run()
   submitInfo.signalSemaphoreCount = 1;
   submitInfo.pSignalSemaphores = &renderFinishSemaphorePool_.semaphores__
     [pCtxt_->renderingContext.inflightIndex__[pCtxt_->renderingContext.currentFrame__]];
+  uint64_t timelineValue = 1;
 
+  //for (auto& pass : passes) {
+  //  VkTimelineSemaphoreSubmitInfo timelineInfo = {};
+  //  timelineInfo.sType = VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO;
+  //  timelineInfo.waitSemaphoreValueCount = 1;
+  //  timelineInfo.pWaitSemaphoreValues = &pass->waitValue; // 이전 pass signal value
+  //  timelineInfo.signalSemaphoreValueCount = 1;
+  //  timelineInfo.pSignalSemaphoreValues = &timelineValue;
+  //
+  //  VkSubmitInfo submitInfo = {};
+  //  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  //  submitInfo.pNext = &timelineInfo;
+  //  submitInfo.commandBufferCount = 1;
+  //  submitInfo.pCommandBuffers = &pass->cmd;
+  //  submitInfo.waitSemaphoreCount = 1;
+  //  submitInfo.pWaitSemaphores = &timelineSemaphore;
+  //  submitInfo.signalSemaphoreCount = 1;
+  //  submitInfo.pSignalSemaphores = &timelineSemaphore;
+  //
+  //  vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+  //
+  //  pass->signalValue = timelineValue; // 다음 pass가 wait할 값
+  //  timelineValue++;
+  //}
+  //
   if (vkQueueSubmit(this->pCtxt_->graphicsQh__,
                     1,
                     &submitInfo,

@@ -5,7 +5,6 @@
 #include <glm/gtc/quaternion.hpp>
 #include <assimp/postprocess.h>
 #include <filesystem>
-#include <common.hpp>
 #include <array>
 #include "importer.hpp"
 #include "../scene_graph/importer_desc.hpp"
@@ -182,7 +181,7 @@ void ImporterEx::processMeshes(const aiScene* scene, ImportResult& out)
     md.vertices.resize(am->mNumVertices);
     for (unsigned i = 0; i < am->mNumVertices; ++i)
     {
-      VertexAll v{};
+      gpu::VertexAll v{};
       // pos
       v.position[0] = am->mVertices[i].x;
       v.position[1] = am->mVertices[i].y;
@@ -273,7 +272,7 @@ void ImporterEx::processMeshesWithOnlyTriangles(const aiScene* scene, ImportResu
     md.materialIndex = static_cast<int>(am->mMaterialIndex);
     md.primitives = am->mPrimitiveTypes;
 
-    std::vector<VertexAll> vertices;
+    std::vector<gpu::VertexAll> vertices;
     std::vector<uint32_t> indices;
     for (unsigned f = 0; f < am->mNumFaces; ++f)
     {
@@ -288,7 +287,7 @@ void ImporterEx::processMeshesWithOnlyTriangles(const aiScene* scene, ImportResu
       for (unsigned idx = 0; idx < 3; ++idx)
       {
         const auto& srcV = am->mVertices[face.mIndices[idx]];
-        VertexAll v{};
+        gpu::VertexAll v{};
         v.position[0] = srcV.x;
         v.position[1] = srcV.y;
         v.position[2] = srcV.z;
@@ -355,7 +354,7 @@ void ImporterEx::processMeshesWithOnlyTriangles(const aiScene* scene, ImportResu
 }
 
 // 본 가중치 4개 제한 + 정규화
-void ImporterEx::processBones(aiMesh* mesh, std::vector<VertexAll>& vertices)
+void ImporterEx::processBones(aiMesh* mesh, std::vector<gpu::VertexAll>& vertices)
 {
   struct BW
   {
@@ -523,7 +522,7 @@ std::unique_ptr<gpu::VkMeshBuffer> ImporterEx::loadModel(const char* filepath)
     spdlog::error("Failed to load model or no meshes found: {}", importer.GetErrorString());
   }
 
-  std::vector<VertexAll> vertices;
+  std::vector<gpu::VertexAll> vertices;
   std::vector<uint32_t> indices;
 
   for (unsigned int m = 0; m < scene->mNumMeshes; ++m)
@@ -532,7 +531,7 @@ std::unique_ptr<gpu::VkMeshBuffer> ImporterEx::loadModel(const char* filepath)
 
     for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
     {
-      VertexAll vertex{};
+      gpu::VertexAll vertex{};
 
       vertex.position[0] = mesh->mVertices[i].x;
       vertex.position[1] = mesh->mVertices[i].y;

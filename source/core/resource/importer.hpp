@@ -25,7 +25,7 @@ class ImporterEx
   void processMeshesWithOnlyTriangles(const aiScene* scene,
                                       ImportResult& out);
   void processBones(aiMesh* mesh,
-                    std::vector<VertexAll>& vertices);
+                    std::vector<gpu::VertexAll>& vertices);
   int addTexture(ImportResult& out,
                  TexUsage slot,
                  const std::string& path,

@@ -138,11 +138,11 @@ void gpu::VkResourceAllocator::uploadBufferTransferPass(VkBuffer src,
                                                         VkDeviceSize dstOffset,
                                                         VkDeviceSize size)
 {
-  gpu::VkPass copyPass{
-    .passType = RenderPassType::COPY_PASS,
-    .read__ = {},
-    .write__ = {},
-    .execute =
+  gpu::VkPass copyPass;
+  copyPass.passType = RenderPassType::COPY_PASS,
+    copyPass.read__ = {},
+    copyPass.write__ = {},
+    copyPass.execute =
     [&src,
       &dst,
       &srcOffset,
@@ -155,8 +155,7 @@ void gpu::VkResourceAllocator::uploadBufferTransferPass(VkBuffer src,
       region.dstOffset = dstOffset;
       region.size = size;
       vkCmdCopyBuffer(cmd, src, dst, 1, &region);
-    }
-  };
+    };
   copyPass.transitionPass = true;
   pCtxt->compiledPass.push_back(copyPass);
 }
@@ -167,11 +166,12 @@ void gpu::VkResourceAllocator::uploadCopyPass(VkBuffer src,
                                               VkDeviceSize dstOffset,
                                               VkDeviceSize size)
 {
-  VkPass copyPass{
-    .passType = RenderPassType::COPY_PASS,
-    .read__ = {},
-    .write__ = {},
-    .execute =
+  VkPass copyPass;
+
+  copyPass.passType = RenderPassType::COPY_PASS,
+    copyPass.read__ = {};
+  copyPass.write__ = {};
+  copyPass.execute =
     [this,
       src,
       dst,
@@ -208,8 +208,7 @@ void gpu::VkResourceAllocator::uploadCopyPass(VkBuffer src,
                            0,
                            nullptr
                           );
-    }
-  };
+    };
   copyPass.transitionPass = true;
   pCtxt->compiledPass.push_back(copyPass);
 }
@@ -217,11 +216,11 @@ void gpu::VkResourceAllocator::uploadCopyPass(VkBuffer src,
 void gpu::VkResourceAllocator::buildImageCopyPass(VkBuffer buffer,
                                                   VkTexture* texture)
 {
-  VkPass copyPass{
-    .passType = RenderPassType::COPY_PASS,
-    .read__ = {},
-    .write__ = {},
-    .execute =
+  VkPass copyPass;
+  copyPass.passType = RenderPassType::COPY_PASS,
+    copyPass.read__ = {},
+    copyPass.write__ = {},
+    copyPass.execute =
     [buffer, texture](VkCommandBuffer cmd)
     {
       VkBufferImageCopy region{};
@@ -247,8 +246,7 @@ void gpu::VkResourceAllocator::buildImageCopyPass(VkBuffer buffer,
                              1,
                              &region
                             );
-    }
-  };
+    };
   copyPass.transitionPass = true;
   pCtxt->compiledPass.push_back(copyPass);
 }
@@ -262,11 +260,11 @@ void gpu::VkResourceAllocator::buildImageBarrierPass(VkImage img,
                                                      VkImageLayout oldLayout,
                                                      VkImageLayout newLayout)
 {
-  VkPass BarrierPass{
-    .passType = RenderPassType::BARRIER_PASS,
-    .read__ = {},
-    .write__ = {},
-    .execute =
+  VkPass BarrierPass;
+  BarrierPass.passType = RenderPassType::BARRIER_PASS,
+  BarrierPass.read__ = {},
+  BarrierPass.write__ = {},
+  BarrierPass.execute =
     [img,
       src,
       dst,
@@ -301,8 +299,7 @@ void gpu::VkResourceAllocator::buildImageBarrierPass(VkImage img,
                            1,
                            &barrier
                           );
-    }
-  };
+    };
   BarrierPass.transitionPass = true;
   pCtxt->compiledPass.push_back(BarrierPass);
 }

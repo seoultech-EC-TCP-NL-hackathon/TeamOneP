@@ -3,21 +3,31 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <memory>
-#include <../core/scene_graph/mesh.hpp>
-#include <../core/scene_graph/material.hpp>
+#include "context.hpp"
 #include "mesh_sub.hpp"
 #include "util/transform.h"
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
-#include "render/material.hpp"
+#include <../core/scene_graph/mesh.hpp>
+#include <../core/scene_graph/material.hpp>
+
+struct ModelConstant
+{
+  glm::mat4 modelMatrix = glm::mat4(1.0f);
+  glm::vec4 color = glm::vec4(1.0f);
+  int albedoTextureIndex = -1;
+  int normalTextureIndex = -1;
+  int roughnessTextureIndex = -1;
+  int metalicTextureIndex = -1;
+};
 
 struct Model
 {
-  Mesh* mesh = nullptr;
+  gpu::MeshBuffer* mesh = nullptr;
   Material* material = nullptr;
+  ModelConstant constant{};
   Submesh submesh{};
   Transform transform;
-  MaterialConstant constant{};
   std::string name;
 };
 

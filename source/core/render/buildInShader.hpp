@@ -21,7 +21,7 @@ namespace shader
   std::string fragGBufferNormalRender =
     "C:/Users/dlwog/OneDrive/Desktop/VkMain-out/source/shader/def_normalRendering.frag";
   std::string fragDepthRender =
-    "C:/Users/dlwog/OneDrive/Desktop/VkMain-out/source/shader/def_depthRendering.frag";
+    "C:/Users/dlwog/OneDrive/Desktop/VkMain-out/source/shader/def_depthRender.frag";
   std::string fragShadowRender = " ";
 
 

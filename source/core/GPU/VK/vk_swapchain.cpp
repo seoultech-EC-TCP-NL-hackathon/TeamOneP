@@ -72,6 +72,7 @@ gpu::VkSwapchainContext::VkSwapchainContext(gpu::VkContext* pCtxt) :
   }
   img__.resize(swapImageCount);
   imgView__.resize(swapImageCount);
+  swapchainAttachment__.resize(swapImageCount);
   vkGetSwapchainImagesKHR(device, swapchain__, &swapImageCount, img__.data());
   imgFormat__ = surfaceFormat.format;
   extent__    = createInfo.imageExtent;

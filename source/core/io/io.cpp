@@ -461,8 +461,12 @@ namespace mns
   void IoSystem::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
   {
     IoSystem* self = static_cast<IoSystem*>(glfwGetWindowUserPointer(window));
+    self->mouseState__.whellDeltaX = xoffset - self->mouseState__.scrollXOffset;
+    self->mouseState__.whellDeltaY = yoffset - self->mouseState__.scrollYOffset;
+
     self->mouseState__.scrollXOffset = xoffset;
     self->mouseState__.scrollYOffset = yoffset;
+
     self->dirty_ = true;
     ImGuiIO& io = ImGui::GetIO();
     io.AddMouseWheelEvent(xoffset, yoffset);

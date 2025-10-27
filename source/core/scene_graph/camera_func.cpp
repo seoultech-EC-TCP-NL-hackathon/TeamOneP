@@ -28,6 +28,8 @@ namespace fn_cam
                                      cam->projection_.farPlane
                                     );
     cam->ubo.proj[1][1] *= -1.0f;
+    cam->ubo.invView = glm::inverse(cam->ubo.view);
+    cam->ubo.invProj = glm::inverse(cam->ubo.proj);
   }
 
   void rotateCam(UserCamera* cam)
@@ -55,7 +57,7 @@ namespace fn_cam
   {
     //float deltaX = (*mns::cursor__.wheelXoffset) - cam->cache.lastWheelOffsetX;
     float deltaY = (*mns::cursor__.wheelYoffset) - cam->cache.lastWheelOffsetY;
-    cam->projection_.fov_ += deltaY * 3;
+    cam->projection_.fov_ += deltaY * 0.3;
   }
 
   //Ray Camera::generateRay(double posX, double posY)

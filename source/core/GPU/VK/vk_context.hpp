@@ -26,6 +26,7 @@ const bool ENABLE_VALIDATION_LAYERS = true;
 namespace gpu
 {
   class VkPass;
+
   class VkContext : public Context
   {
     public:
@@ -41,6 +42,7 @@ namespace gpu
     VkQueue presentQh__;
     uint32_t graphicsFamailyIdx__;
     uint32_t presentFamilyIdx__;
+    VkRenderPass uiRenderPassh__;
     VkExtent2D initExtent__{2000, 1200};
 
     VkBool32 dirty_ = VK_FALSE;
@@ -49,11 +51,7 @@ namespace gpu
     std::vector<gpu::VkPass*> uploadedPass;
     std::vector<gpu::VkPass> compiledPass;
     std::unordered_map<VkPassId, VkPass*> passHash_;
-    std::unordered_map<VkResourceId, VkResource*> nodeHash_;
     std::vector<std::unique_ptr<gpu::VkResource>> nodes_;
-    std::vector<std::unique_ptr<gpu::VkPass>> passes_;
-    std::vector<SwapchainHandle> swapchainHandle;
-    gpu::VkGraphBuilder graphBuilder;
     std::unique_ptr<gpu::VkPipelinePool> pPipelinePool;
     std::unique_ptr<gpu::VkMemoryAllocator> pMemoryAllocator;
     std::unique_ptr<gpu::VkSwapchainContext> pSwapChainContext;
@@ -61,6 +59,8 @@ namespace gpu
     std::unique_ptr<gpu::VkDiscardPool> pDiscardPool;
     std::unique_ptr<gpu::VkDescriptorAllocator> pDescriptorAllocator;
     std::unique_ptr<gpu::VkDescriptorLayoutBuilder> pLayoutBuilder_;
+    std::unique_ptr<gpu::VkGraphBuilder> pGraphBuilder;
+
     struct
     {
       std::vector<VkMeshBuffer*> batches;

@@ -25,6 +25,7 @@ UserCamera::UserCamera()
 
 void UserCamera::update()
 {
+  if (noUpdate) return;
   moveProcess(this);
   rotateProcess(this);
   zoomProcess(this);

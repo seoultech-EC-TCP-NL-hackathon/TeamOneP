@@ -25,6 +25,7 @@ set(GLM_DIR ${CMAKE_SOURCE_DIR}/extern/glm)
 set(EXTERN_DIR ${CMAKE_SOURCE_DIR}/extern)
 set(MODEL_DIR ${EXTERN_DIR}/externModel/assets/models/)
 set(TEXTURE_DIR ${EXTERN_DIR}/externModel/assets/textures)
+set(SCENE ${CMAKE_SOURCE_DIR}/source/core/scene_graph)
 add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 add_compile_options(/wd4005 /wd4996 /wd4834)
 include_directories(
@@ -80,30 +81,28 @@ include_directories(
 set(COMMON_SRC
         main.cpp
         source/core/engine.cpp
-        source/core/render/resource_manager.cpp
-
-        source/core/render/renderer.cpp
-
+        source/core/GPU/Context.cpp
+        source/core/resource/resource_manager.cpp
+        source/core/render/renderpass_builder.cpp
         source/core/resource/importer.cpp
 
         source/core/io/io.cpp
         source/core/io/log_sink.cpp
         source/core/io/event_manager.cpp
-        source/resource/static_buffer.cpp
-        source/core/scene_graph/mesh.cpp
+        #source/core/scene_graph/mesh.cpp
         #source/feature/sculptor/sculptor.cpp
         #source/feature/sculptor/dynamic_mesh.cpp
         #source/feature/sculptor/sculptor_act.cpp
 
-        source/feature/UI/ui.cpp
+        source/core/UI/ui.cpp
 
+        ${VK_BACKEND}/vk_pass.cpp
         ${VK_BACKEND}/vk_shader_pool.cpp
         ${VK_BACKEND}/vk_command_buffer.cpp
         ${VK_BACKEND}/vk_sync_object.cpp
         ${VK_BACKEND}/vk_context.cpp
         ${VK_BACKEND}/vk_scheduler.cpp
         ${VK_BACKEND}/vk_graph_builder.cpp
-        ${VK_BACKEND}/vk_graph_compiler.cpp
         ${VK_BACKEND}/vk_resource_allocator.cpp
         ${VK_BACKEND}/vk_memory_allocator.cpp
         ${VK_BACKEND}/vk_memory_pool.cpp
@@ -113,6 +112,11 @@ set(COMMON_SRC
         ${VK_BACKEND}/vk_pipeline_pool.cpp
         ${VK_BACKEND}/vk_descriptor_allocator.cpp
         ${VK_BACKEND}/vk_sampler_builder.cpp
+        ${VK_BACKEND}/vk_texture.cpp
+        ${VK_BACKEND}/vk_discard_pool.cpp
+        ${VK_BACKEND}/vk_resource.cpp
+        ${VK_BACKEND}/vk_descriptor_layout_builder.cpp
+        ${VK_BACKEND}/vk_host_buffer.cpp
 
 
         ${IMGUI_DIR}/imgui.cpp
@@ -122,19 +126,15 @@ set(COMMON_SRC
         ${IMGUI_DIR}/imgui_widgets.cpp
         ${IMGUI_DIR}/imgui_impl_glfw.cpp
         ${IMGUI_DIR}/back/imgui_impl_vulkan.cpp
-        source/resource/sampler_builder.cpp
-        source/core/GPU/Context.cpp
-        source/core/GPU/VK/vk_discard_pool.cpp
-        source/core/GPU/VK/vk_resource.cpp
-        source/core/GPU/VK/vk_descriptor_layout_builder.cpp
-        source/core/GPU/VK/vk_host_buffer.cpp
-        source/core/scene_graph/camera_func.cpp
-        source/core/scene_graph/camera_state.cpp
+
+        ${SCENE}/camera_func.cpp
+        ${SCENE}/camera_state.cpp
+        ${SCENE}/light.cpp
 
 )
 message(STATUS "Vulkan include: ${Vulkan_INCLUDE_DIRS}")
 add_executable(exe ${COMMON_SRC})
-
+add_executable(vTuber ${CMAKE_CURRENT_SOURCE_DIR}/source/feature/vTuber/vTuber.cpp)
 # OS별 링크 및 정의
 if (WIN32)
     target_link_libraries(exe

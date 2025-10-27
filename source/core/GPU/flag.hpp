@@ -27,13 +27,13 @@ namespace gpu
 
   enum class ResourceType: uint32_t
   {
-    BUFFER   = 0,
-    IMAGE    = 1,
-    LAYOUT   = 2,
-    PIPELINE = 3,
-    SHADER   = 4,
-    MESH     = 5,
-    TEXTURE  = 6,
+    BUFFER   = 1 << 0,
+    IMAGE    = 1 << 1,
+    LAYOUT   = 1 << 2,
+    PIPELINE = 1 << 3,
+    SHADER   = 1 << 4,
+    MESH     = 1 << 5,
+    TEXTURE  = 1 << 6,
   };
 
   enum class MemorySpace: uint32_t
@@ -82,6 +82,7 @@ namespace gpu
     RAYTRACING_PASS   = 0x00000800,
     UI                = 0x00001000,
     DEPTH_PASS        = 0x00002000,
+    SWAPCHIAN         = 0x00004000,
   };
 
   enum class DescriptorFlag : uint32_t
@@ -137,7 +138,7 @@ namespace gpu
   constexpr uint32_t INSTANCE_BINDING = 1;
   constexpr uint32_t GLOBAL_LAYOUT = 0;
   constexpr uint32_t CAMERA_BINDING = 0;
-  constexpr uint32_t GLOBAL_LIGHT = 2;
+  constexpr uint32_t GLOBAL_LIGHT = 1;
   constexpr uint32_t LOCAL_LIGHT = 3;
   constexpr uint32_t SHADOW_LAYOUT = 4;
   constexpr uint32_t TEXTURE_LAYOUT = 1;

@@ -1,6 +1,5 @@
 #ifndef MYPROJECT_RENDER_GRAPH_NODE_HPP
 #define MYPROJECT_RENDER_GRAPH_NODE_HPP
-
 #include <cstdint>
 #include <vector>
 #include <string>
@@ -13,6 +12,7 @@
 #include <unordered_set>
 #include "enum_op.hpp"
 #include "vk_memory_pool.hpp"
+#include "vk_pipeline_pool.hpp"
 #include "../flag.hpp"
 #include "../resource/vertex.hpp"
 struct VertexAll;
@@ -65,7 +65,7 @@ namespace gpu
   class VkResource
   {
     public:
-    friend class VkGraphCompiler;
+    friend class VkGraphBuilder;
     friend class VkGraphBuilder;
     friend class VkResourceAllocator;
     friend class VkGraph;
@@ -95,6 +95,14 @@ namespace gpu
     VkAccessFlags currentAccessMask__ = VK_ACCESS_NONE;
   };
 
+  struct VkMeshConstant
+  {
+    glm::mat4 modelMatrix_;
+    std::int32_t albedoTexture = -1;
+    std::int32_t normalTexture = -1;
+    std::int32_t roughnessTexture = -1;
+    std::int32_t metalnessTexture = -1;
+  };
 
   class VkMeshBuffer : public VkResource
   {
@@ -115,6 +123,7 @@ namespace gpu
     VkPipelineLayout pipelineLayout__;
     VkAccessFlagBits writeAccess__ = VK_ACCESS_TRANSFER_WRITE_BIT;
     VkPipelineStageFlagBits writePipelineState__ = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    gpu::VkConstant constant__;
     std::vector<SubMesh> submeshes__;
     std::vector<VkDescriptorSet> descriptorSet__;
     VkBool32 dirty__;

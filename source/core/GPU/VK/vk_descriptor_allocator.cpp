@@ -12,6 +12,8 @@ gpu::VkDescriptorAllocator::VkDescriptorAllocator(VkContext* pCtxt) :
   samplerBuilder_(pCtxt),
   baseSet(VK_NULL_HANDLE)
 {
+  /// todo: vector resized, all writed set reseted
+  ///  so, if resize, find or use static array
   VkDescriptorPoolSize PoolSize[] = {
     {VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
     {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
@@ -32,6 +34,10 @@ gpu::VkDescriptorAllocator::VkDescriptorAllocator(VkContext* pCtxt) :
   poolInfo.maxSets = 1024;
   poolInfo.poolSizeCount = sizeof(PoolSize) / sizeof(PoolSize[0]);
   poolInfo.pPoolSizes = PoolSize;
+  writedSets_.reserve(300);
+  imageInfos_.reserve(300);
+  bufferInfos_.reserve(300);
+
   if (vkCreateDescriptorPool(pCtxt->deviceh__,
                              &poolInfo,
                              nullptr,
@@ -40,17 +46,13 @@ gpu::VkDescriptorAllocator::VkDescriptorAllocator(VkContext* pCtxt) :
     throw std::runtime_error("fail to create Imgui Pool");
   }
   buildDefaultLayout();
-  descriptorSets.reserve( pCtxt->renderingContext.maxInflight__);
+  descriptorSets.reserve(pCtxt->renderingContext.maxInflight__);
   for (uint32_t i = 0; i < pCtxt->renderingContext.maxInflight__; i++)
   {
     descriptorSets.push_back(allocateSet(VK_NULL_HANDLE));
   }
 }
 
-VkDescriptorSet gpu::VkDescriptorAllocator::allocate(uint32_t currentFrame)
-{
-  return descriptorSets[currentFrame];
-}
 
 void gpu::VkDescriptorAllocator::buildDefaultLayout()
 {
@@ -113,36 +115,47 @@ void gpu::VkDescriptorAllocator::writeUbo(VkBuffer srcBuffer,
 
 void gpu::VkDescriptorAllocator::uploadBindlessTextureSet(gpu::VkFrameAttachment* texture)
 {
-  texture->sampler = samplerBuilder_.dftSampler;
-  texture->descriptorArrayIndex = currentBindlessIndex_;
-  VkDescriptorImageInfo imageInfo{};
-  imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-  imageInfo.imageView = texture->imageView__;
-  imageInfo.sampler = texture->sampler;
-  imageInfos_.push_back(imageInfo);
+  if (texture->sampler == VK_NULL_HANDLE)
+  {
+    texture->sampler = this->samplerBuilder_.dftSampler;
+  }
+  texture->descriptorArrayIndex__ = currentBindlessIndex_;
+  for (uint32_t i = 0; i < pCtxt->renderingContext.maxInflight__; i++)
+  {
+    VkDescriptorImageInfo imageInfo{};
+    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    imageInfo.imageView = texture->imageView__;
+    imageInfo.sampler = texture->sampler;
+    imageInfos_.push_back(imageInfo);
+    VkDescriptorImageInfo* ptr = &this->imageInfos_[imageInfos_.size() - 1];
 
-  VkWriteDescriptorSet descriptorWrite{};
-  descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-  descriptorWrite.dstSet = texture->descriptorSet__;
-  descriptorWrite.dstBinding = gpu::BINDLESS_TEXTURE;
-  descriptorWrite.dstArrayElement = texture->descriptorArrayIndex;
-  descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-  descriptorWrite.descriptorCount = 1;
-  descriptorWrite.pImageInfo = &imageInfos_.back();
-  writedSets_.push_back(descriptorWrite);
+    VkWriteDescriptorSet descriptorWrite{};
+    descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWrite.dstSet = texture->descriptorSet__[i];
+    descriptorWrite.dstBinding = gpu::BINDLESS_TEXTURE;
+    descriptorWrite.dstArrayElement = texture->descriptorArrayIndex__;
+    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    descriptorWrite.descriptorCount = 1;
+    descriptorWrite.pImageInfo = ptr;
+    this->writedSets_.push_back(descriptorWrite);
+  }
   currentBindlessIndex_++;
 }
 
+
 void gpu::VkDescriptorAllocator::update()
 {
-  vkUpdateDescriptorSets(pCtxt->deviceh__,
-                         writedSets_.size(),
-                         writedSets_.data(),
-                         0,
-                         nullptr);
-  bufferInfos_.clear();
-  imageInfos_.clear();
-  writedSets_.clear();
+  if (writedSets_.size() > 0)
+  {
+    vkUpdateDescriptorSets(pCtxt->deviceh__,
+                           writedSets_.size(),
+                           writedSets_.data(),
+                           0,
+                           nullptr);
+    bufferInfos_.clear();
+    imageInfos_.clear();
+    writedSets_.clear();
+  }
 }
 
 //

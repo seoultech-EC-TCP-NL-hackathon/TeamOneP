@@ -1,7 +1,7 @@
 #ifndef MYPROJECT_EVENT_MANAGER_MODE_HPP
 #define MYPROJECT_EVENT_MANAGER_MODE_HPP
-#include  <common.hpp>
-#include "../sculptor/sculptor.hpp"
+
+//#include "../sculptor/sculptor.hpp"
 
 enum class UserMode: uint32_t
 {

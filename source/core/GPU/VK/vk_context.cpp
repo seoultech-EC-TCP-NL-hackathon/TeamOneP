@@ -68,6 +68,7 @@ namespace gpu
     pDescriptorAllocator = std::make_unique<gpu::VkDescriptorAllocator>(this);
     pDiscardPool = std::make_unique<gpu::VkDiscardPool>(this);
     pPipelinePool = std::make_unique<gpu::VkPipelinePool>(this);
+    pGraphBuilder = std::make_unique<gpu::VkGraphBuilder>(this);
     loadImGuiGPUContext();
   }
 
@@ -439,7 +440,6 @@ namespace gpu
       VK_KHR_PRESENT_WAIT_EXTENSION_NAME,
       VK_KHR_PRESENT_ID_EXTENSION_NAME,
       VK_KHR_MAINTENANCE1_EXTENSION_NAME,
-
     };
     uint32_t deviceExtensionCount;
     vkEnumerateDeviceExtensionProperties(physical_device_h, nullptr, &deviceExtensionCount, nullptr);
@@ -662,6 +662,7 @@ namespace gpu
     {
       //throw std::runtime_error("failed to create render pass!");
     }
+    uiRenderPassh__ = uiPass;
     VkPhysicalDeviceProperties properties;
     vkGetPhysicalDeviceProperties(physicalDeviceh__, &properties);
     ImGui_ImplVulkan_InitInfo UIinfo = {};
@@ -677,11 +678,12 @@ namespace gpu
     UIinfo.ImageCount = this->pSwapChainContext->img__.size();
     UIinfo.CheckVkResultFn = nullptr;
     UIinfo.RenderPass = uiPass;
+    //UIinfo.RenderPass = VK_NULL_HANDLE;
     UIinfo.ApiVersion = properties.apiVersion;
     UIinfo.Subpass = 0;
     UIinfo.UseDynamicRendering = VK_FALSE;
     UIinfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-
+    //UIinfo.PipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
     ImGui_ImplGlfw_InitForVulkan(windowh__, true);
     ImGui_ImplVulkan_Init(&UIinfo);
     ImGuiIO& io = ImGui::GetIO();

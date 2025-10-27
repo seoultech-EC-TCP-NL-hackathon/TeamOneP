@@ -1,7 +1,9 @@
 #ifndef MYPROJECT_RENDER_GRAPH_SYNC_HPP
 #define MYPROJECT_RENDER_GRAPH_SYNC_HPP
 
-#include "vk_common.hpp"
+#include <cstdint>
+#include <vector>
+#include "vulkan/vulkan.h"
 
 namespace gpu
 {

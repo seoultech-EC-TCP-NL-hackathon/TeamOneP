@@ -1,62 +1,95 @@
-//
-// Created by ljh on 25. 10. 10..
-//
+#ifndef VK_GRAPH_COMPILER
+#define VK_GRAPH_COMPILER
 
-#ifndef MYPROJECT_VK_GRAPH_BUILDER_HPP
-#define MYPROJECT_VK_GRAPH_BUILDER_HPP
-#include <memory>
 #include <unordered_map>
+#include <queue>
 
-#include "IBuffer.hpp"
-#include "util/unique.hpp"
+#include "vk_common.hpp"
 #include "vk_resource.hpp"
-#include "vk_host_buffer.h"
-#include "vk_texture.hpp"
-//#include "vk_sampler_builder"
+#include "vk_swapchain.hpp"
+#include "vk_context.hpp"
+#include "../IBuffer.hpp"
+#include "vk_sync_object.hpp"
 
-///todo:
-/// builder test :
-/// declare node and pass -> subpass barrier test first
-/// ->after barrier test, must test batch control
-/// ->life time and resource scheduler
+
 namespace gpu
 {
-  class VkContext;
-  extern VkContext* ctx__;
-  using SwapchainHandle = uint32_t;
+  enum class CompileMode
+  {
+    IMMEDIATE,
+    DEFFERED
+  };
 
   class VkGraphBuilder
   {
     friend class VkScheduler;
+    friend class VkContext;
 
     public:
-    VkGraphBuilder();
-    ~VkGraphBuilder();
-    static VkPassId addPass(std::unique_ptr<VkPass>& pass);
-    static void addResource(VkPassId passId,
-                            VkResourceId read,
-                            VkResourceId write);
-
-    static void addReadResource(VkPassId passId, VkResourceId read);
-    static void addWriteResource(VkPassId passId, VkResourceId write);
-    static void uploadCopyPass(VkResource* read,
-                               VkResource* write);
-
-    static void buildSwapchainImage();
-    static VkResourceId buildBufferHandle(std::unique_ptr<VkHostBuffer>& VkFBuffer);
+    VkGraphBuilder(VkContext* pCtxt);
+    ~VkGraphBuilder() = default;
+    void deffered();
+    void Immediate();
+    static std::unique_ptr<VkFrameAttachment> buildSwapchainAttachment(int index);
     static VkHostBuffer buildHostBuffer(VkDeviceSize size, BufferType bufferType);
-    static gpu::VkMeshBuffer* registerMeshBuffer(std::unique_ptr<VkMeshBuffer>& buffer);
-    static gpu::VkTexture* registerTexture(std::unique_ptr<VkTexture>& texture);
-    static VkResourceId registerImage(std::unique_ptr<VkFrameAttachment>& image);
-    static VkResourceId getSwapchainImage();
-    static VkResourceId buildTexture(VkTexture* texture);
-    static VkResourceId buildBatch();
-    static VkFrameAttachment* buildDepthAttachment();
-    static gpu::VkFrameAttachment* buildGBufferHandle(uint32_t format);
+    static std::unique_ptr<gpu::VkFrameAttachment> buildDepthAttachment();
+    static std::unique_ptr<gpu::VkFrameAttachment> buildGBufferAttachment(uint32_t format);
 
     private:
-    static void flag();
+    void allocate(VkResource* node);
+    void maskingTimeline(VkResource* node);
+    void compilePass(VkPass* renderPass);
+
+    void readSync(VkFrameAttachment* image);
+    void readSync(VkHostBuffer* fBuffer);
+
+    void insertResolve(VkFrameAttachment* image);
+    void writeSync(VkFrameAttachment* image);
+    void writeSync(VkHostBuffer* fBuffer);
+
+    bool needBufferBarrier(uint32_t readPipeline,
+                           uint32_t readAccessMask,
+                           VkHostBuffer* readBuffer);
+    uint32_t getResourceUsage(gpu::ResourceUsage usage);
+
+    VkPipelineStageFlags decideReadPipeline(gpu::ResourceUsage readUsage);
+    VkImageLayout decideReadImageLayout(gpu::ResourceUsage readUsage);
+    VkAccessFlags decideReadAccessMask(gpu::ResourceUsage readUsage);
+
+    std::function<void(VkCommandBuffer cmd)> buildBufferBarrier(VkAccessFlags srcAccessMask,
+                                                                VkAccessFlags dstAccessMask,
+                                                                VkPipelineStageFlags srcStageMask,
+                                                                VkPipelineStageFlags dstStageMask,
+                                                                VkHostBuffer& frameBuffer,
+                                                                uint32_t srcQFamily,
+                                                                uint32_t dstQFamily,
+                                                                VkHostBuffer* buffer);
+
+    std::function<void(VkCommandBuffer cmd)> buildImageBarrier(VkAccessFlags srcAccessMask,
+                                                               VkAccessFlags dstAccessMask,
+                                                               VkPipelineStageFlags srcStageMask,
+                                                               VkPipelineStageFlags dstStageMask,
+                                                               VkImageLayout srcImageLayout,
+                                                               VkImageLayout dstImageLayout,
+                                                               uint32_t currentQ,
+                                                               uint32_t dstQ,
+                                                               gpu::VkFrameAttachment* srcImage);
+
+    std::function<void(VkCommandBuffer cmd)> buildBufferCopyToImage(gpu::VkHostBuffer* srcBuffer,
+                                                                    gpu::VkFrameAttachment* dstImage);
+
+    std::function<void(VkCommandBuffer cmd)> buildBufferCopyToBuffer(gpu::VkHostBuffer* srcBuffer,
+                                                                     gpu::VkHostBuffer* dstBuffer);
+    std::vector<std::vector<VkPass*>> waveFrontPasses;
+
+
+    gpu::VkContext* pCtxt;
+    std::unordered_set<VkResource*> frameNodes_;
+    VkSemaphorePool semaphorePool_;
   };
 }
 
-#endif //MYPROJECT_VK_GRAPH_BUILDER_HPP
+
+// void updateRsc(VkResource *node);
+
+#endif

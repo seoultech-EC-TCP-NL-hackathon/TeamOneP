@@ -19,19 +19,25 @@ namespace gpu
 
   void cmdSetViewports(CommandBuffer cmd, float x, float y, float width, float height)
   {
-    ViewPort viewport;
+    viewport viewport{};
     viewport.x = x;
-    viewport.y = x;
+    viewport.y = y;
     viewport.width = width;
     viewport.height = height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
+
     VkRect2D scissor;
-    scissor.offset = {0, 0};
+    scissor.offset = {
+      static_cast<int>(x),
+      static_cast<int>(y)
+    };
+
     scissor.extent = {
       static_cast<uint32_t>(width),
       static_cast<uint32_t>(height)
     };
+
     vkCmdSetViewport(cmd, 0, 1, &viewport);
     vkCmdSetScissor(cmd, 0, 1, &scissor);
   }
@@ -61,11 +67,6 @@ namespace gpu
     vkCmdBeginRendering(cmd, &renderingInfo);
   }
 
-  void cmdDraw(CommandBuffer cmd, uint32_t nodeId)
-  {
-    VkMeshBuffer* node = reinterpret_cast<VkMeshBuffer*>(gpu::ctx__->nodeHash_[nodeId]);
-    node->draw(cmd);
-  }
 
   void cmdDrawQuad(CommandBuffer cmd)
   {

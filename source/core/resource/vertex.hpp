@@ -1,7 +1,7 @@
 #ifndef VERTEX_HPP
 #define VERTEX_HPP
+#include "glm/glm.hpp"
 
-#include"common.hpp"
 
 enum class VertexType:uint32_t{
   QUAD,

@@ -1,28 +1,29 @@
 #ifndef Enteraction__
 #define Enteraction__
-#include "../render/renderer.hpp"
+#include "../render/renderpass_builder.hpp"
 
 class EventManager
 {
   friend class Engine;
-
   public:
   EventManager() = default;
   ~EventManager() = default;
+  void init();
+  void updateUITexture();
   void moveProcessEvent();
   void getKey();
   void getMouseEvent();
   void wheelUpdate();
-  void setRenderer(IRenderer* renderer);
-
   private:
   bool singleModel = true;
-  UserMode currentActor_ = UserMode::Sculptor;
-  std::unique_ptr<User> actor_;
-  ResourceManager* resourcesManager_;
-  IRenderer* renderer_;
-  GLFWwindow* window_;
-  Camera* mainCam;
+  //UserMode currentActor_ = UserMode::Sculptor;
+  //std::unique_ptr<User> actor_;
+  std::vector<bool> offscreenTarget;
+  ResourceManager* pResourcesManager_;
+  RenderpassBuilder* pRenderpassBuilder_;
+  UI* ui;
+
+  bool offscreenUpdateNeed = true;
   bool altPressed = false;
   bool leftButton = false;
   bool middleButton = false;

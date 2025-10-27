@@ -9,7 +9,7 @@
 #include "vk_command_buffer.hpp"
 #include "vk_sync_object.hpp"
 #include "vk_swapchain.hpp"
-#include "vk_graph_compiler.hpp"
+#include "vk_graph_builder.hpp"
 //renderer :
 namespace gpu
 {
@@ -27,14 +27,13 @@ namespace gpu
   private:
     uint32_t lastFrame_ = 0;
     gpu::VkGraph graphs_;
-    gpu::VkGraphCompiler graphCompiler_;
     gpu::VkCommandBufferPool commandBufferPool_;
     gpu::VkSemaphorePool imageAvailiableSemaphorePool_;
     gpu::VkSemaphorePool renderFinishSemaphorePool_;
     gpu::VkFencePool maxInflightFence_;
 
-    VkTimelineSemaphoreSubmitInfoKHR submitInfo_;
     gpu::VkContext* pCtxt_;
+    VkTimelineSemaphoreSubmitInfoKHR submitInfo_;
     PFN_vkReleaseSwapchainImagesEXT vkReleaseSwapchainImagesEXT = nullptr;
   };
 }

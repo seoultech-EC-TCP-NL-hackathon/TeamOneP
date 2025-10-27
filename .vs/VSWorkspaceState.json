@@ -6,7 +6,17 @@
     ]
   },
   "ExpandedNodes": [
-    ""
+    "",
+    "\\extern",
+    "\\extern\\CubismSdkForNative-5-r.4.1",
+    "\\extern\\CubismSdkForNative-5-r.4.1\\Samples",
+    "\\extern\\CubismSdkForNative-5-r.4.1\\Samples\\Vulkan",
+    "\\extern\\CubismSdkForNative-5-r.4.1\\Samples\\Vulkan\\Demo",
+    "\\extern\\CubismSdkForNative-5-r.4.1\\Samples\\Vulkan\\Demo\\proj.win.cmake",
+    "\\extern\\CubismSdkForNative-5-r.4.1\\Samples\\Vulkan\\Demo\\proj.win.cmake\\build",
+    "\\extern\\CubismSdkForNative-5-r.4.1\\Samples\\Vulkan\\Demo\\proj.win.cmake\\build\\nmake_msvc2022_x64_mt",
+    "\\extern\\CubismSdkForNative-5-r.4.1\\Samples\\Vulkan\\Demo\\proj.win.cmake\\build\\nmake_msvc2022_x64_mt\\src"
   ],
+  "SelectedNode": "\\extern\\CubismSdkForNative-5-r.4.1\\Samples\\Vulkan\\Demo\\proj.win.cmake\\CMakeLists.txt",
   "PreviewInSolutionExplorer": false
 }

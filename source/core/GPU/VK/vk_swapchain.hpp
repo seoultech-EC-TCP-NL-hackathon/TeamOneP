@@ -3,6 +3,7 @@
 
 #include "vk_common.hpp"
 #include "vk_memory_allocator.hpp"
+#include "vk_texture.hpp"
 
 namespace gpu
 {
@@ -16,21 +17,8 @@ namespace gpu
     VkFormat imgFormat__;
     VkSwapchainKHR swapchain__;
     std::vector<VkImage> img__;
-    std::vector<VkImage> gBuffer1__;
-    std::vector<VkImage> gBuffer2__;
-    std::vector<VkImage> gBuffer3__;
-    std::vector<VkImage> gBuffer4__;
-    std::vector<VkImage> depthBuffer__;
-    std::vector<VkImage> shadowBuffer__;
-    std::vector<VkImage> lightningBuffer;
     std::vector<VkImageView> imgView__;
-    std::vector<VkImageView> depthView__;
-    std::vector<VkImageView> shadowView__;
-    std::vector<VkImageView> gBufferView1__;
-    std::vector<VkImageView> gBufferView2__;
-    std::vector<VkImageView> gBufferView3__;
-    std::vector<VkImageView> gBufferView4__;
-    std::vector<VkImageView> lightningView__;
+    std::vector<VkFrameAttachment* > swapchainAttachment__;
     VkBool32 broked__ = true;
     VkExtent2D extent__;
     private:

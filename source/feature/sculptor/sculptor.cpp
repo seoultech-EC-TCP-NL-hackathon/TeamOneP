@@ -4,10 +4,12 @@
 #include <glm/gtx/quaternion.hpp>
 #include "glm/detail/compute_common.hpp"
 #include "spdlog/pattern_formatter.h"
-constexpr float EPSILON    = 1e-6f;
+constexpr float EPSILON = 1e-6f;
 constexpr int DEPTH_RADIUS = 30;
 
-Sculptor::Sculptor(Model *model, VkExtent2D extent) : model_(model), extent_(extent), dynamicMesh_(model->mesh) {}
+Sculptor::Sculptor(Model* model, VkExtent2D extent) : model_(model), extent_(extent), dynamicMesh_(model->mesh)
+{
+}
 
 bool Sculptor::stroke(glm::vec3 strokeDir)
 {
@@ -20,38 +22,37 @@ bool Sculptor::stroke(glm::vec3 strokeDir)
   {
     glm::vec3 hitPoint = strokeDir * hit_t;
     dynamicMesh_.subdivideTriange(hitTriangleIdx);
-    float rangeX  = brush->radius / extent_.width;
-    float rangeY  = brush->radius / extent_.height;
+    float rangeX = brush->radius / extent_.width;
+    float rangeY = brush->radius / extent_.height;
     float ellipse = std::sqrt(rangeX * rangeX + rangeY * rangeY);
-    for (auto &v: model_->mesh->vertices)
+    for (auto& v : model_->mesh->vertices)
     {
       float dist = glm::distance(hitPoint, v.position);
       if (dist < brush->radius)
       {
         SculptingPoint p{};
-        p.distance      = dist;
-        p.ellipse       = ellipse;
+        p.distance = dist;
+        p.ellipse = ellipse;
         p.currentHeight = glm::length(v.position);
-        p.vertex        = &v;
+        p.vertex = &v;
         sculptingPoints.push_back(p);
       }
     }
     float weightedSum = 0.0f;
-    float weightSum   = 0.0f;
-    for (auto &point: sculptingPoints)
+    float weightSum = 0.0f;
+    for (auto& point : sculptingPoints)
     {
       float w = 1.0f - glm::clamp(point.distance / ellipse, 0.0f, 1.0f);
       weightedSum += point.currentHeight * w;
       weightSum += w;
     }
     float averageHeight = weightedSum / weightSum;
-    for (auto p: sculptingPoints)
+    for (auto p : sculptingPoints)
     {
-      p.vertex->position += p.vertex->normal*brush->strength
-                            *brush->attenuate(p.distance, p.ellipse)
-                             *glm::dot(p.vertex->normal, strokeDir)
-                              *1.0f; //(p.currentHeight- averageHeight);
-
+      p.vertex->position += p.vertex->normal * brush->strength
+        * brush->attenuate(p.distance, p.ellipse)
+        * glm::dot(p.vertex->normal, strokeDir)
+        * 1.0f; //(p.currentHeight- averageHeight);
     }
     sculptingPoints.clear();
     model_->mesh->reNomalCompute();
@@ -60,20 +61,20 @@ bool Sculptor::stroke(glm::vec3 strokeDir)
   return false;
 }
 
-bool Sculptor::RayIntersectTriangle(const glm::vec3 &dir,
-                                    const glm::vec3 &v0,
-                                    const glm::vec3 &v1,
-                                    const glm::vec3 &v2,
-                                    float &t,
-                                    float &u,
-                                    float &v)
+bool Sculptor::RayIntersectTriangle(const glm::vec3& dir,
+                                    const glm::vec3& v0,
+                                    const glm::vec3& v1,
+                                    const glm::vec3& v2,
+                                    float& t,
+                                    float& u,
+                                    float& v)
 {
   glm::vec3 edge1 = v1 - v0;
   glm::vec3 edge2 = v2 - v0;
-  glm::vec3 h     = glm::cross(dir, edge2);
-  float angle     = glm::dot(edge1, h);
+  glm::vec3 h = glm::cross(dir, edge2);
+  float angle = glm::dot(edge1, h);
   if (fabs(angle) < EPSILON) return false;
-  float f     = 1.0f / angle;
+  float f = 1.0f / angle;
   glm::vec3 s = -v0;
 
   u = f * glm::dot(s, h);
@@ -89,10 +90,10 @@ bool Sculptor::RayIntersectTriangle(const glm::vec3 &dir,
   return false;
 }
 
-bool Sculptor::castRayToMesh(const glm::vec3 &rayDir)
+bool Sculptor::castRayToMesh(const glm::vec3& rayDir)
 {
-  hitAny         = false;
-  hit_t          = FLT_MAX;
+  hitAny = false;
+  hit_t = FLT_MAX;
   hitTriangleIdx = -1;
   for (size_t i = 0; i < model_->mesh->indices.size(); i += 3)
   {
@@ -104,16 +105,17 @@ bool Sculptor::castRayToMesh(const glm::vec3 &rayDir)
     {
       if (t < hit_t)
       {
-        hit_t          = t;
+        hit_t = t;
         hitTriangleIdx = i / 3;
-        hitAny         = true;
+        hitAny = true;
       }
     }
   }
   if (hitAny)
   {
     spdlog::debug("[Sculptor] Hit triangle: {} , t: {}", hitTriangleIdx, hit_t);
-  } else
+  }
+  else
   {
     spdlog::debug("[Sculptor] No hit");
   }
@@ -133,19 +135,19 @@ void Sculptor::createZBuffer(glm::mat4 proj, glm::mat4 view)
                                    1.0f);
 
     glm::vec4 clipPos = projView * modelPos;
-    glm::vec3 ndc     = glm::vec3(clipPos) / clipPos.w;
-    float xScreen     = (ndc.x * 0.5f + 0.5f) * extent_.width;
-    float yScreen     = (1.0f - (ndc.y * 0.5f + 0.5f)) * extent_.height;
-    float zScreen     = ndc.z;
-    int xInt          = static_cast<int>(std::round(xScreen));
-    int yInt          = static_cast<int>(std::round(yScreen));
+    glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
+    float xScreen = (ndc.x * 0.5f + 0.5f) * extent_.width;
+    float yScreen = (1.0f - (ndc.y * 0.5f + 0.5f)) * extent_.height;
+    float zScreen = ndc.z;
+    int xInt = static_cast<int>(std::round(xScreen));
+    int yInt = static_cast<int>(std::round(yScreen));
 
     xInt = std::clamp(xInt, 0, static_cast<int>(extent_.width) - 1);
     yInt = std::clamp(yInt, 0, static_cast<int>(extent_.height) - 1);
 
     uint32_t xPixel = static_cast<uint32_t>(xInt);
     uint32_t yPixel = static_cast<uint32_t>(yInt);
-    int32_t radius  = DEPTH_RADIUS;
+    int32_t radius = DEPTH_RADIUS;
 
     if (brush->radius > DEPTH_RADIUS)
     {
@@ -157,11 +159,9 @@ void Sculptor::createZBuffer(glm::mat4 proj, glm::mat4 view)
       {
         for (int dx = -radius; dx <= radius; ++dx)
         {
-          int nx                = std::clamp(xInt + dx, 0, static_cast<int>(extent_.width - 1));
-          int ny                = std::clamp(yInt + dy, 0, static_cast<int>(extent_.height - 1));
-          zBuffer.depth[ny][nx] = (zScreen < zBuffer.depth[ny][nx]) ?
-                                    zScreen :
-                                    zBuffer.depth[ny][nx];
+          int nx = std::clamp(xInt + dx, 0, static_cast<int>(extent_.width - 1));
+          int ny = std::clamp(yInt + dy, 0, static_cast<int>(extent_.height - 1));
+          zBuffer.depth[ny][nx] = (zScreen < zBuffer.depth[ny][nx]) ? zScreen : zBuffer.depth[ny][nx];
           //spdlog::trace("ny: {} nx: {} , d :{}", ny, nx, zScreen);
         }
       }
@@ -185,11 +185,9 @@ void Sculptor::depthUpdate(int x, int y, float depth)
     {
       for (int dx = -radius; dx <= radius; ++dx)
       {
-        int nx                = std::clamp(x + dx, 0, static_cast<int>(extent_.width - 1));
-        int ny                = std::clamp(y + dy, 0, static_cast<int>(extent_.height - 1));
-        zBuffer.depth[ny][nx] = (depth < zBuffer.depth[ny][nx]) ?
-                                  depth :
-                                  zBuffer.depth[ny][nx];
+        int nx = std::clamp(x + dx, 0, static_cast<int>(extent_.width - 1));
+        int ny = std::clamp(y + dy, 0, static_cast<int>(extent_.height - 1));
+        zBuffer.depth[ny][nx] = (depth < zBuffer.depth[ny][nx]) ? depth : zBuffer.depth[ny][nx];
         return;
       }
     }
@@ -198,11 +196,9 @@ void Sculptor::depthUpdate(int x, int y, float depth)
   {
     for (int dx = -radius; dx <= radius; ++dx)
     {
-      int nx                = std::clamp(x + dx, 0, static_cast<int>(extent_.width - 1));
-      int ny                = std::clamp(y + dy, 0, static_cast<int>(extent_.height - 1));
-      zBuffer.depth[ny][nx] = (depth > zBuffer.depth[ny][nx]) ?
-                                depth :
-                                zBuffer.depth[ny][nx];
+      int nx = std::clamp(x + dx, 0, static_cast<int>(extent_.width - 1));
+      int ny = std::clamp(y + dy, 0, static_cast<int>(extent_.height - 1));
+      zBuffer.depth[ny][nx] = (depth > zBuffer.depth[ny][nx]) ? depth : zBuffer.depth[ny][nx];
       return;
     }
   }

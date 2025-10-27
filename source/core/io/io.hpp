@@ -80,6 +80,9 @@ namespace mns
       double scrollXOffset = 0.0;
       double scrollYOffset = 0.0;
 
+      double whellDeltaX = 0.0;
+      double whellDeltaY = 0.0;
+
       bool leftButtonDown = false;
       bool rightButtonDown = false;
       bool middleButtonDown = false;

@@ -19,7 +19,7 @@ namespace gpu
     VK_COLOR_COMPONENT_B_BIT |
     VK_COLOR_COMPONENT_A_BIT;
 
-  struct VkContant
+  struct VkConstant
   {
     glm::mat4 mat1;
     glm::mat4 mat2;
@@ -28,8 +28,9 @@ namespace gpu
   enum class RenderingAttachmentType
   {
     DEPTH,
-    COLOR,
-    G_BUFFER
+    SWAPCHAIN,
+    G_BUFFER,
+    LIGHTNING
   };
 
   class VkPipelineProgram
@@ -38,7 +39,7 @@ namespace gpu
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
     VkShaderModule vertShaderModule = VK_NULL_HANDLE;
     VkShaderModule fragShaderModule = VK_NULL_HANDLE;
-    RenderingAttachmentType renderingType = RenderingAttachmentType::COLOR;
+    RenderingAttachmentType renderingType = RenderingAttachmentType::SWAPCHAIN;
     VertexType vertexType = VertexType::ALL;
     VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     VkCullModeFlags cullMode = VK_CULL_MODE_BACK_BIT;
@@ -53,6 +54,10 @@ namespace gpu
     }
   };
 
+  class VkRTPipeline
+  {
+
+  };
   struct PipelineHash
   {
     std::size_t operator()(const VkPipelineProgram& program) const
@@ -71,6 +76,7 @@ namespace gpu
     ~VkPipelinePool();
     VkPipeline createPipeline(VkPipelineProgram program);
     VkPipeline getPipeline(VkPipelineProgram program) const;
+    VkPipeline buildRTPipeline();
     VkPipelineLayout createPipelineLayout(VkDescriptorSetLayout* descriptorLayoutData,
                                           uint32_t layoutCount);
     void createComputePipeline(const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts,
@@ -116,12 +122,13 @@ namespace gpu
                                     VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT,
                                     VkPipelineMultisampleStateCreateFlags flags = 0);
 
-    void buildColorBlendingAttachment(VkPipelineColorBlendAttachmentState& colorBlendAttachment,
-                                      uint32_t = COLOR_FLAG_ALL,
-                                      VkBool32 blendEnable = VK_FALSE);
+
+    VkPipelineColorBlendAttachmentState buildColorBlendingAttachment(
+      uint32_t = COLOR_FLAG_ALL,
+      VkBool32 blendEnable = VK_FALSE);
 
     void buildColorBlendingPipeline(VkPipelineColorBlendStateCreateInfo& colorBlendingCi,
-                                    VkPipelineColorBlendAttachmentState& attachment,
+                                    VkPipelineColorBlendAttachmentState* attachment,
                                     uint32_t attachmentCount = 1);
 
     void buildDynamicRenderingPipeline(VkPipelineRenderingCreateInfo& dynamicRendering,
@@ -151,9 +158,7 @@ namespace gpu
     VkDevice device_;
     VkPipelineLayout computePipelineLayout_;
     VkPipelineCache oldPipelineCache_;
-
     std::unordered_map<VkPipelineProgram, VkPipeline, PipelineHash> pipelineHash_{};
-
     std::vector<uint8_t> loadPipelineCache(const std::string& filename);
   };
 }

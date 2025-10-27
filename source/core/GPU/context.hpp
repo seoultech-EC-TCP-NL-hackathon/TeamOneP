@@ -42,9 +42,10 @@ namespace gpu
   extern VkContext* ctx__;
   using SwapchainHandle = uint32_t;
   using CommandBuffer = VkCommandBuffer;
-  using Descriptor = VkDescriptorSet;
+  using DescriptorSet = VkDescriptorSet;
   using Extent = VkExtent2D;
   using PolygonMode = VkPolygonMode;
+  using MeshBuffer = VkMeshBuffer;
   using Scheduler = VkScheduler;
   using RenderPass = VkPass;
   using RenderNode = VkResource;
@@ -57,9 +58,10 @@ namespace gpu
   using PipelineCache = VkPipelineCache;
   using PipelineLayout = VkPipelineLayout;
   using RenderingInfo = VkRenderingInfo;
-  using ViewPort = VkViewport;
+  using viewport = VkViewport;
   using ShaderObject = VkShaderModule;
-
+  using RenderTarget = uint32_t;
+  using Texture = VkTexture;
   struct GraphicsPipelineObject
   {
     Pipeline pipeline;
@@ -71,6 +73,9 @@ namespace gpu
 
   using VertexBindingDescriptor = VkVertexInputBindingDescription;
   using VertexAttribute = VkVertexInputAttributeDescription;
+  constexpr uint32_t FORMAT_R8_UNORM = VK_FORMAT_R8_UNORM;
+  constexpr uint32_t FORMAT_R16_UNORM = VK_FORMAT_R16_UNORM;
+
   constexpr uint32_t FORMAT_R8G8_UNORM = 16;
   constexpr uint32_t FORMAT_R8G8_SNORM = 17;
   constexpr uint32_t FORMAT_R8G8_USCALED = 18;
@@ -107,7 +112,7 @@ namespace gpu
   constexpr uint32_t FORMAT_B8G8R8A8_SINT = 49;
   constexpr uint32_t FORMAT_B8G8R8A8_SRGB = 50;
   constexpr uint32_t FORMAT_D32_SFLOAT = 126;
-  constexpr uint32_t FORMAT_R16_UNORM = 70;
+
   constexpr uint32_t FORMAT_R16_SNORM = 71;
   constexpr uint32_t FORMAT_R16_USCALED = 72;
   constexpr uint32_t FORMAT_R16_SSCALED = 73;

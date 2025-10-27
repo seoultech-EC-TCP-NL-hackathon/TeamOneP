@@ -1,0 +1,8 @@
+//
+// Created by dlwog on 25. 10. 26..
+//
+
+#ifndef MYPROJECT_RENDER_PIPELINE_HPP
+#define MYPROJECT_RENDER_PIPELINE_HPP
+
+#endif //MYPROJECT_RENDER_PIPELINE_HPP

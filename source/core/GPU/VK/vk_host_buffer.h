@@ -5,7 +5,6 @@
 #ifndef MYPROJECT_VK_HOST_BUFFER_H
 #define MYPROJECT_VK_HOST_BUFFER_H
 #include "vk_resource.hpp"
-
 namespace gpu
 {
   class VkHostBuffer : public VkResource
@@ -15,15 +14,13 @@ namespace gpu
     friend class VkResourceAllocator;
     friend class VkGraph;
     friend class VkDiscardPool;
-
     public:
     void* data_;
     VkDeviceSize size_;
     VkBuffer bufferh_;
     VkAllocation allocation__;
-    VkDescriptorSet set;
+    std::vector<VkDescriptorSet> sets;
     void uploadData();
-
     private:
     VkBool32 descriptorAllocated__ = false;
     VkPipelineStageFlagBits writePipelineStage__;

@@ -16,7 +16,14 @@
 #include <algorithm>
 
 #include "dynamic_mesh.hpp"
-
+//  if (sculpting->symmetry_)
+//  {
+//    // show symmetry
+//    ImVec2 point = ImGui::GetIO().DisplaySize;
+//    point.x -= mouse_pos.x;
+//    point.y = mouse_pos.y;
+//    draw_list->AddCircle(point, radius, mouseColor, 32, thickness);
+//  }
 struct ZBuffer{
   void createBuffer(VkExtent2D extent)
   {

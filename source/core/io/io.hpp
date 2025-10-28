@@ -1,14 +1,16 @@
 #ifndef IO_HPP
 #define IO_HPP
+
 #include "GLFW/glfw3.h"
 #include "imgui.h"
-
 namespace mns
 {
   class IoSystem;
   extern IoSystem io__;
   struct WSAD;
   extern WSAD WSAD__;
+  struct MouseButton;
+  extern MouseButton mousebutton__;
 
   class IoSystem
   {
@@ -86,6 +88,7 @@ namespace mns
       bool leftButtonDown = false;
       bool rightButtonDown = false;
       bool middleButtonDown = false;
+      double radius = 5;
     } mouseState__;
 
     struct
@@ -117,6 +120,7 @@ namespace mns
     const double* yPos = &mns::io__.mouseState__.ypos;
     const double* wheelXoffset = &mns::io__.mouseState__.scrollXOffset;
     const double* wheelYoffset = &mns::io__.mouseState__.scrollYOffset;
+    const double* radius =  &mns::io__.mouseState__.radius;
   };
 }
 #endif //INTERACTION_HPP

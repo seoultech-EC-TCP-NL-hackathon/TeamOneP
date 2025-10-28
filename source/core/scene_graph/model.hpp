@@ -26,9 +26,13 @@ struct Model
   gpu::MeshBuffer* mesh = nullptr;
   Material* material = nullptr;
   ModelConstant constant{};
-  Submesh submesh{};
   Transform transform;
   std::string name;
+  float rotateX ;
+  float rotateY ;
+  float rotateZ ;
+  bool uiState = false;
+  void drawUIState();
 };
 
 #endif

@@ -26,6 +26,8 @@ set(EXTERN_DIR ${CMAKE_SOURCE_DIR}/extern)
 set(MODEL_DIR ${EXTERN_DIR}/externModel/assets/models/)
 set(TEXTURE_DIR ${EXTERN_DIR}/externModel/assets/textures)
 set(SCENE ${CMAKE_SOURCE_DIR}/source/core/scene_graph)
+
+set(RENDER ${CMAKE_SOURCE_DIR}/source/core/render)
 add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 add_compile_options(/wd4005 /wd4996 /wd4834)
 include_directories(
@@ -83,7 +85,6 @@ set(COMMON_SRC
         source/core/engine.cpp
         source/core/GPU/Context.cpp
         source/core/resource/resource_manager.cpp
-        source/core/render/renderpass_builder.cpp
         source/core/resource/importer.cpp
 
         source/core/io/io.cpp
@@ -127,10 +128,14 @@ set(COMMON_SRC
         ${IMGUI_DIR}/imgui_impl_glfw.cpp
         ${IMGUI_DIR}/back/imgui_impl_vulkan.cpp
 
+        ${SCENE}/model.cpp
         ${SCENE}/camera_func.cpp
         ${SCENE}/camera_state.cpp
         ${SCENE}/light.cpp
 
+        ${RENDER}/render_pipeline.cpp
+        ${RENDER}/renderpass_builder.cpp
+        ${RENDER}/render_target_film.cpp
 )
 message(STATUS "Vulkan include: ${Vulkan_INCLUDE_DIRS}")
 add_executable(exe ${COMMON_SRC})

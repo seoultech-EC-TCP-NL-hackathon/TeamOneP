@@ -820,7 +820,7 @@ namespace gpu
     return std::move(depth);
   }
 
-  std::unique_ptr<gpu::VkFrameAttachment> VkGraphBuilder::buildGBufferAttachment(uint32_t format)
+  std::unique_ptr<gpu::VkFrameAttachment> VkGraphBuilder::buildFrameAttachment(uint32_t format)
   {
     mns::uptr<gpu::VkFrameAttachment> gBuffer = mns::mUptr<gpu::VkFrameAttachment>();
     gBuffer->type_ = gpu::ResourceType::IMAGE;

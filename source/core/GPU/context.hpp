@@ -40,6 +40,7 @@ namespace gpu
 namespace gpu
 {
   extern VkContext* ctx__;
+  using FrameAttachment = VkFrameAttachment;
   using SwapchainHandle = uint32_t;
   using CommandBuffer = VkCommandBuffer;
   using DescriptorSet = VkDescriptorSet;
@@ -50,7 +51,7 @@ namespace gpu
   using RenderPass = VkPass;
   using RenderNode = VkResource;
   using ImageHanle = VkFrameAttachment;
-  using BufferHanle = VkHostBuffer;
+  using GPUBuffer = VkHostBuffer;
   using RenderingAttachment = VkRenderingAttachmentInfo;
   using PipelineLayout = VkPipelineLayout;
   using DescriptorSetLayout = VkDescriptorSetLayout;
@@ -62,6 +63,7 @@ namespace gpu
   using ShaderObject = VkShaderModule;
   using RenderTarget = uint32_t;
   using Texture = VkTexture;
+  using PipelineProgram = VkPipelineProgram;
   struct GraphicsPipelineObject
   {
     Pipeline pipeline;

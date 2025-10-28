@@ -1,13 +1,14 @@
 #ifndef MYPROJECT_CAMERA_HPP
 #define MYPROJECT_CAMERA_HPP
 #include <string>
+#include <optional>
 #include <vector>
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include "util/transform.h"
 #include "context.hpp"
-
+#include "model.hpp"
 enum class CameraUserMode
 {
   Free,
@@ -79,26 +80,13 @@ class Viewport
   std::vector<Viewport> viewports_;
 };
 
-//  muliiViews = !muliiViews;
-//  if (!muliiViews)
-//  {
-//    renderer_->viewMode = ViewMode::SINGLE;
-//    double mouseX, mouseY;
-//    glfwGetCursorPos(window_, &mouseX, &mouseY);
-//    getViewIndex(mouseX, mouseY);
-//  }
-//  else
-//  {
-//    renderer_->viewMode = ViewMode::MULTI;
-//  }
-//}
-
 
 class UserCamera
 {
   public:
   std::string name = "user main Camera";
   UserCamera();
+  void updateUI();
   void update();
   void (*moveProcess)(UserCamera* cam);
   void (*rotateProcess)(UserCamera* cam);
@@ -111,13 +99,14 @@ class UserCamera
   glm::vec3 right_;
   glm::vec3 up_;
   Transform camTransform_;
-  Transform meshTransform_;
+  std::optional<Model*> selectModel;
   ProjectionConfig projection_{};
   CameraUserMode mode;
   MouseCache cache;
   float delta = 0.01;
   CameraUBO ubo;
   bool noUpdate = false;
+  bool uiState = false;
 };
 
 class VRCamera

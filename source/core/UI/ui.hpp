@@ -75,7 +75,7 @@ class UI
     std::vector<UITexture> depthTargets;
   }offscreenTagets;
 
-  RenderpassBuilder* pPassBuilder;
+  RenderPassBuilder* pPassBuilder;
   std::vector<UITexture> textureHandle;
   bool rightBox = false;
   void colorPickerColor();

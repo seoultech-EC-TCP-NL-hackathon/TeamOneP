@@ -1,10 +1,11 @@
-#define MAX_LIGHTS 4
 #ifndef LIGHT_HPP
 #define LIGHT_HPP
 #include <vector>
 #include "glm/glm.hpp"
 #include "context.hpp"
 #include "transform.h"
+
+#define MAX_LIGHTS 4
 
 enum class LightType: uint32_t
 {
@@ -46,10 +47,11 @@ class LightBuilder
   public:
   LightBuilder();
   void build(const Light& light);
-
   void uploadData();
-
-  gpu::VkHostBuffer bufferContext;
+  void drawUI();
+  gpu::GPUBuffer buffer;
+  std::vector<Light> lights;
+  bool uiState = false;
   lightUBO ubo;
 };
 

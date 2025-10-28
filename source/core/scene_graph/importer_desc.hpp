@@ -1,6 +1,5 @@
 #ifndef MYPROJECT_IMPORT_DESC_HPP
 #define MYPROJECT_IMPORT_DESC_HPP
-
 #include <glm/mat4x4.hpp>
 #include <string>
 #include <vector>
@@ -193,7 +192,6 @@ struct ImportResult{
     size_t size;
     bool isCompressed;
   };
-
   std::vector<EmbeddedTex> embedded;
 };
 

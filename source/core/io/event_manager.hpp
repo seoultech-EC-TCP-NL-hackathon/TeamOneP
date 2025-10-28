@@ -20,7 +20,7 @@ class EventManager
   //std::unique_ptr<User> actor_;
   std::vector<bool> offscreenTarget;
   ResourceManager* pResourcesManager_;
-  RenderpassBuilder* pRenderpassBuilder_;
+  RenderPassBuilder* pRenderpassBuilder_;
   UI* ui;
 
   bool offscreenUpdateNeed = true;

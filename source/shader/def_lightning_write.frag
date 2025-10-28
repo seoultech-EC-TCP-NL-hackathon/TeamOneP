@@ -29,12 +29,10 @@ struct GPULight {
     mat4 view;
     mat4 proj;
 };
-
 layout (std140, set = 0, binding = 1) uniform LightBuffer {
-    GPULight lights[8];
+    GPULight lights[4];
     int lightCount;
 } lightBuffer;
-
 layout (set = 0, binding = 0) uniform cameraUBD {
     mat4 view;
     mat4 proj;
@@ -57,19 +55,18 @@ void main()
 
     vec3 color = vec3(0.0);
 
-    //for (int i = 0; i < lightBuffer.lightCount; ++i) {
-        vec4 tempColor = vec4(0.2,0.3,0.4, 1.0);
-
-        vec3 lightDir = normalize(vec3(0.0, 0.0, 1.0));
+    for (int i = 0; i < lightBuffer.lightCount; ++i) {
+        GPULight light = lightBuffer.lights[i];
+        vec3 lightDir = normalize(light.position.xyz-worldPos);
         vec3 viewDir  = normalize(camera.camPos - worldPos);
         vec3 halfDir  = normalize(lightDir + viewDir);
         float NdotL = max(dot(normal, lightDir), 0.0);
         float NdotH = max(dot(normal, halfDir), 0.0);
-        vec3 diffuse = albedo * tempColor.rgb * NdotL;
-        vec3 specular = tempColor.rgb * pow(NdotH, 1.0/roughness);
-        vec3 lightning = diffuse + specular;
+        vec3 diffuse = albedo * light.color.rgb * NdotL;
+        vec3 specular = light.color.rgb * pow(NdotH, 1.0/roughness);
+        vec3 lightning = mix(diffuse, specular, 0.8);
         color += lightning;
-    //}
+    }
     color = clamp(color, 0.0, 1.0);
     outColor = vec4(color, 1.0);
 }

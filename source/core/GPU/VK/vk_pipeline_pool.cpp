@@ -1029,6 +1029,24 @@ namespace gpu
         formats.push_back(VK_FORMAT_R16G16B16A16_SFLOAT);
         break;
       }
+
+      case(RenderingAttachmentType::BLOOMING):
+      {
+        formats.push_back(VK_FORMAT_R32G32B32A32_SFLOAT);
+        break;
+      }
+
+      case(RenderingAttachmentType::TONEMAP):
+      {
+        formats.push_back(VK_FORMAT_R16G16_SFLOAT);
+        break;
+      }
+
+      case(RenderingAttachmentType::GAMMA_CORRECTION):
+      {
+        formats.push_back(VK_FORMAT_B8G8R8A8_SRGB);
+        break;
+      }
     }
     buildDynamicRenderingPipeline(dRenderingInfo,
                                   formats.data(),

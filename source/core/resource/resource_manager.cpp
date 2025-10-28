@@ -1,13 +1,12 @@
+#include <filesystem>
+#include <fstream>
 #include "resource_manager.hpp"
 #include "../render/renderpass_builder.hpp"
 #include "../GPU/context.hpp"
 
-
-void ResourceManager::setLight()
-{
-}
 ResourceManager::ResourceManager() = default;
 ResourceManager::~ResourceManager() = default;
+
 void ResourceManager::init()
 {
   // std::unique_ptr<Material> base = std::make_unique<Material>();
@@ -15,27 +14,28 @@ void ResourceManager::init()
   // materials_[base->name] = std::move(base);
   auto lightBuf =
     gpu::VkGraphBuilder::buildHostBuffer(sizeof(lightUBO), BufferType::UNIFORM);
-
-  lightBuilder.bufferContext = lightBuf;
+  lightBuilder.buffer = lightBuf;
   Light light;
-  light.transform.position ;
+  lightBuilder.build(light);
   lightBuilder.uploadData();
+  lightBuilder.buffer.sets.resize(gpu::ctx__->renderingContext.maxInflight__);
   currentCamBuffer.resize(gpu::ctx__->renderingContext.maxInflight__);
   for (int i = 0; i < gpu::ctx__->renderingContext.maxInflight__; i++)
   {
     currentCamBuffer[i] = gpu::VkGraphBuilder::buildHostBuffer(sizeof(CameraUBO),
                                                                BufferType::UNIFORM);
-    currentCamBuffer[i].set = gpu::ctx__->pDescriptorAllocator->descriptorSets[i];
+    currentCamBuffer[i].sets.resize(gpu::ctx__->renderingContext.maxInflight__);
+    currentCamBuffer[i].sets[i] = gpu::ctx__->pDescriptorAllocator->descriptorSets[i];
     gpu::ctx__->pDescriptorAllocator->writeUbo(currentCamBuffer[i].bufferh_,
                                                currentCamBuffer[i].size_,
-                                               currentCamBuffer[i].set,
+                                               currentCamBuffer[i].sets[i],
                                                gpu::CAMERA_BINDING,
                                                0,
                                                1);
-    lightBuilder.bufferContext.set = currentCamBuffer[i].set;
-    gpu::ctx__->pDescriptorAllocator->writeUbo(lightBuilder.bufferContext.bufferh_,
-                                               lightBuilder.bufferContext.size_,
-                                               lightBuilder.bufferContext.set,
+    lightBuilder.buffer.sets[i] = currentCamBuffer[i].sets[i];
+    gpu::ctx__->pDescriptorAllocator->writeUbo(lightBuilder.buffer.bufferh_,
+                                               lightBuilder.buffer.size_,
+                                               lightBuilder.buffer.sets[i],
                                                gpu::GLOBAL_LIGHT,
                                                0,
                                                1);
@@ -44,13 +44,17 @@ void ResourceManager::init()
 }
 
 
-void ResourceManager::updateMaincamState(uint32_t update)
+void ResourceManager::updateResource(uint32_t update)
 {
+  drawResourceBox();
+  drawUploadedMesh();
   camera.update();
+  lightBuilder.drawUI();
   currentCamBuffer[update].data_ = &(camera.ubo);
   currentCamBuffer[update].size_ = sizeof(camera.ubo);
   currentCamBuffer[update].uploadData();
   lightBuilder.uploadData();
+  drawModelState();
 }
 
 void ResourceManager::addModel(gpu::MeshBuffer* meshBuffer,
@@ -84,4 +88,83 @@ void ResourceManager::uploadTexture(std::string path)
   gpu::ctx__->pDescriptorAllocator->uploadBindlessTextureSet(texture.get());
   gpu::ctx__->pDescriptorAllocator->update();
   textures_[path] = std::move(texture);
+}
+
+
+void ResourceManager::drawResourceBox()
+{
+  {
+    ImVec2 dispSize = ImGui::GetIO().DisplaySize;
+    ImGui::SetNextWindowPos(ImVec2(dispSize.x - dispSize.x / 9, 0));
+    ImGui::SetNextWindowSize(ImVec2(dispSize.x / 9, dispSize.y / 6 * 5));
+    if (ImGui::Begin("ASSET BOX",
+                     nullptr))
+    {
+      ImGui::Text("MODEL FOLDER : ");
+      ImGui::BeginChild("Model folder");
+      {
+        for (const auto& entry : std::filesystem::directory_iterator(ASSET_MODELS_DIR))
+        {
+          if (entry.is_regular_file())
+          {
+            if (ImGui::Button(entry.path().filename().string().c_str()))
+            {
+              uploadMesh(std::string(ASSET_MODELS_DIR) + entry.path().filename().string());
+            }
+          }
+        }
+      }
+      ImGui::Separator();
+      ImGui::Text("TEXTURE FOLDER : ");
+      ImGui::BeginChild("Texture folder");
+      {
+        {
+          for (const auto& entry : std::filesystem::directory_iterator(ASSET_TEXTURES_DIR))
+          {
+            if (entry.is_regular_file())
+            {
+              if (ImGui::Button(entry.path().filename().string().c_str()))
+              {
+                uploadTexture(entry.path().filename().string());
+              }
+            }
+          }
+          ImGui::EndChild();
+        }
+      }
+      ImGui::EndChild();
+    }
+  }
+  ImGui::End();
+}
+
+void ResourceManager::drawModelState()
+{
+  for (auto& model : this->models_)
+  {
+    auto m = model.second.get();
+    m->drawUIState();
+    if (m->uiState)
+    {
+      this->camera.selectModel = m;
+    }
+  }
+}
+
+void ResourceManager::drawUploadedMesh()
+{
+  if (ImGui::Begin("Mesh edditor",
+                   nullptr))
+  {
+    ImGui::Text("uploaded Mesh: ");
+    for (auto& mesh : meshes_)
+    {
+      if (ImGui::Button(mesh.first.c_str()))
+      {
+        addModel(mesh.second.get(), mesh.first);
+      }
+    }
+  }
+
+  ImGui::End();
 }

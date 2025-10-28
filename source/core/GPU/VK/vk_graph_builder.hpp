@@ -33,7 +33,7 @@ namespace gpu
     static std::unique_ptr<VkFrameAttachment> buildSwapchainAttachment(int index);
     static VkHostBuffer buildHostBuffer(VkDeviceSize size, BufferType bufferType);
     static std::unique_ptr<gpu::VkFrameAttachment> buildDepthAttachment();
-    static std::unique_ptr<gpu::VkFrameAttachment> buildGBufferAttachment(uint32_t format);
+    static std::unique_ptr<gpu::VkFrameAttachment> buildFrameAttachment(uint32_t format);
 
     private:
     void allocate(VkResource* node);

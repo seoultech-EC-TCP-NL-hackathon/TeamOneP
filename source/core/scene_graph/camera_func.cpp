@@ -2,7 +2,7 @@
 // Created by dlwog on 25. 10. 20..
 //
 #include "transform.h"
-#include "camera_func.h"
+#include "camera_func.hpp"
 #include "io.hpp"
 #include "User/user.hpp"
 
@@ -14,6 +14,75 @@ namespace fn_cam
     if (*mns::WSAD__.S)cam->camTransform_.position -= cam->dir_ * cam->delta;
     if (*mns::WSAD__.D)cam->camTransform_.position += cam->right_ * cam->delta;
     if (*mns::WSAD__.A)cam->camTransform_.position -= cam->right_ * cam->delta;
+  }
+
+  void noFn(UserCamera* cam)
+  {
+    return;
+  }
+
+  void rotateFpsMode(UserCamera* cam)
+  {
+    float deltaX = (*mns::cursor__.xPos) - cam->cache.lastX;
+    float deltaY = (*mns::cursor__.yPos) - cam->cache.lastY;
+    if (cam->noUpdate || ImGui::GetIO().WantCaptureMouse)
+    {
+      deltaX = 0;
+      deltaY = 0;
+    };
+    cam->camTransform_.rotate(deltaY,
+                              -deltaX);
+    cam->dir_ = glm::normalize(cam->camTransform_.rotation * glm::vec3(0, 0, -1));
+  }
+
+
+  void rotateEditing(UserCamera* cam)
+  {
+    if (*mns::mousebutton__.lButton)
+    {
+      float deltaX = (*mns::cursor__.xPos) - cam->cache.lastX;
+      float deltaY = (*mns::cursor__.yPos) - cam->cache.lastY;
+      if (cam->noUpdate || ImGui::GetIO().WantCaptureMouse)
+      {
+        deltaX = 0;
+        deltaY = 0;
+      };
+      cam->camTransform_.rotate(deltaY,
+                                -deltaX);
+      cam->dir_ = glm::normalize(cam->camTransform_.rotation * glm::vec3(0, 0, -1));
+    }
+    if (*mns::mousebutton__.rButton)
+    {
+      float deltaX = (*mns::cursor__.xPos) - cam->cache.lastX;
+      float deltaY = (*mns::cursor__.yPos) - cam->cache.lastY;
+      if (cam->noUpdate || ImGui::GetIO().WantCaptureMouse)
+      {
+        deltaX = 0;
+        deltaY = 0;
+      };
+      if (cam->selectModel.has_value())
+      {
+        cam->selectModel.value()->transform.rotate(deltaY,
+                                                   -deltaX);
+        cam->selectModel.value()->transform.update();
+        cam->selectModel.value()->transform.matrix = cam->ubo.invView *
+          cam->selectModel.value()->transform.matrix;
+        cam->selectModel.value()->constant.modelMatrix =
+          cam->selectModel.value()->transform.matrix;
+      }
+    }
+  }
+
+  void resetState(UserCamera* cam)
+  {
+    if (mns::io__.keyState__.keyF)
+    {
+      cam->camTransform_.position = glm::vec3(0, 0, 0);
+      cam->dir_ = glm::vec3(0, 0, -1);
+      cam->up_ = glm::vec3(0, 1, 0);
+      cam->right_ = glm::vec3(1, 0, 0);
+      cam->camTransform_.rotation = glm::quat();
+    }
   }
 
   void updateView(UserCamera* cam)
@@ -30,27 +99,6 @@ namespace fn_cam
     cam->ubo.proj[1][1] *= -1.0f;
     cam->ubo.invView = glm::inverse(cam->ubo.view);
     cam->ubo.invProj = glm::inverse(cam->ubo.proj);
-  }
-
-  void rotateCam(UserCamera* cam)
-  {
-    float deltaX = (*mns::cursor__.xPos) - cam->cache.lastX;
-    float deltaY = (*mns::cursor__.yPos) - cam->cache.lastY;
-    cam->camTransform_.rotate(deltaY,
-                              -deltaX);
-    cam->dir_ = glm::normalize(cam->camTransform_.rotation * glm::vec3(0, 0, -1));
-  }
-
-  void resetState(UserCamera* cam)
-  {
-    if (mns::io__.keyState__.keyF)
-    {
-      cam->camTransform_.position = glm::vec3(0, 0, 0);
-      cam->dir_ = glm::vec3(0, 0, -1);
-      cam->up_ = glm::vec3(0, 1, 0);
-      cam->right_ = glm::vec3(1, 0, 0);
-      cam->camTransform_.rotation = glm::quat();
-    }
   }
 
   void updateWheel(UserCamera* cam)

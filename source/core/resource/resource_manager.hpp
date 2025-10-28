@@ -17,7 +17,7 @@ using bindingIndex = uint32_t;
 class ResourceManager
 {
   friend class Engine;
-  friend class RenderpassBuilder;
+  friend class RenderPassBuilder;
   friend class EventManager;
   friend class UI;
 
@@ -26,22 +26,23 @@ class ResourceManager
   ResourceManager();
   ~ResourceManager();
   void init();
-  void updateMaincamState(uint32_t currentFrame);
+  void updateResource(uint32_t currentFrame);
   void addModel(gpu::MeshBuffer* meshBuffer, std::string name);
   void uploadMesh(VkCommandBuffer command, std::string path);
   void uploadMesh(std::string path);
   void uploadTexture(std::string path);
-  void setLight();
+  void drawResourceBox();
+  void drawModelState();
+  void drawUploadedMesh();
   LightBuilder lightBuilder;
-  std::vector<gpu::VkHostBuffer> currentCamBuffer;
+  std::vector<gpu::GPUBuffer> currentCamBuffer;
   Model selectedModel{};
   ImporterEx importer_;
   uint32_t maxInflight_ = 3;
   bindingIndex currentBinding_ = 0;
-
   private:
   UserCamera camera;
-  RenderpassBuilder* pRenderPassBuilder_;
+  RenderPassBuilder* pRenderPassBuilder_;
   std::unordered_map<Key, std::unique_ptr<Model>> models_;
   std::unordered_map<Key, std::unique_ptr<gpu::MeshBuffer>> meshes_;
   std::unordered_map<Key, std::unique_ptr<Material>> materials_;

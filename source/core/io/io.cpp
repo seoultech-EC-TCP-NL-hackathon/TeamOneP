@@ -18,9 +18,149 @@ namespace mns
     glfwSetKeyCallback(gpu::ctx__->windowh__, keyCallbackWrapper);
     glfwSetCursorPosCallback(gpu::ctx__->windowh__, cursorPosCallbackWrapper);
     glfwSetMouseButtonCallback(gpu::ctx__->windowh__, mouseButtonCallbackWrapper);
-    glfwMakeContextCurrent(gpu::ctx__->windowh__);
     glfwSetFramebufferSizeCallback(gpu::ctx__->windowh__, framebufferSizeCallback);
+    glfwMakeContextCurrent(gpu::ctx__->windowh__);
     glfwSetScrollCallback(gpu::ctx__->windowh__, scrollCallback);
+  }
+
+  void IoSystem::keyCallbackWrapper(GLFWwindow* window, int key, int scancode, int action, int mods)
+  {
+    IoSystem* self = static_cast<IoSystem*>(glfwGetWindowUserPointer(window));
+    if (self)
+    {
+      self->onKeyCallback(key, scancode, action, mods);
+    }
+  }
+
+  void IoSystem::mouseButtonCallbackWrapper(GLFWwindow* window, int button, int action, int mods)
+  {
+    IoSystem* self = static_cast<IoSystem*>(glfwGetWindowUserPointer(window));
+    ImGuiIO& io = ImGui::GetIO();
+    if (action == GLFW_PRESS)
+    {
+      switch (button)
+      {
+        case (GLFW_MOUSE_BUTTON_LEFT):
+        {
+          self->mouseState__.leftButtonDown = true;
+          break;
+        }
+        case (GLFW_MOUSE_BUTTON_RIGHT):
+        {
+          self->mouseState__.rightButtonDown = true;
+          break;
+        }
+        case (GLFW_MOUSE_BUTTON_MIDDLE):
+        {
+          self->mouseState__.middleButtonDown = true;
+          break;
+        }
+      }
+    }
+    if (action == GLFW_RELEASE)
+    {
+      switch (button)
+      {
+        case (GLFW_MOUSE_BUTTON_LEFT):
+        {
+          self->mouseState__.leftButtonDown = false;
+          break;
+        }
+        case (GLFW_MOUSE_BUTTON_RIGHT):
+        {
+          self->mouseState__.rightButtonDown = false;
+          break;
+        }
+        case (GLFW_MOUSE_BUTTON_MIDDLE):
+        {
+          self->mouseState__.middleButtonDown = false;
+          break;
+        }
+      }
+    }
+    io.AddMouseButtonEvent(button, action);
+  }
+
+  void IoSystem::cursorPosCallbackWrapper(GLFWwindow* window, double xpos, double ypos)
+  {
+    IoSystem* self = static_cast<IoSystem*>(glfwGetWindowUserPointer(window));
+    if (self)
+    {
+      self->cursorPosCallback(window, xpos, ypos);
+    }
+    ImGuiIO& io = ImGui::GetIO();
+    io.MousePos.x = static_cast<float>(xpos);
+    io.MousePos.y = static_cast<float>(ypos);
+    io.AddMousePosEvent(xpos, ypos);
+    if (io.WantCaptureMouse)
+    {
+      io.MousePos.x = xpos;
+      io.MousePos.y = ypos;
+    }
+  }
+
+  void IoSystem::framebufferSizeCallback(GLFWwindow* window, int w, int h)
+  {
+    IoSystem* self = static_cast<IoSystem*>(glfwGetWindowUserPointer(window));
+    self->windowState__.resized = true;
+    self->windowState__.height = h;
+    self->windowState__.width = w;
+    self->dirty_ = true;
+  }
+
+  void IoSystem::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+  {
+    IoSystem* self = static_cast<IoSystem*>(glfwGetWindowUserPointer(window));
+    self->mouseState__.whellDeltaX = xoffset - self->mouseState__.scrollXOffset;
+    self->mouseState__.whellDeltaY = yoffset - self->mouseState__.scrollYOffset;
+
+    self->mouseState__.scrollXOffset = xoffset;
+    self->mouseState__.scrollYOffset = yoffset;
+
+    self->dirty_ = true;
+    ImGuiIO& io = ImGui::GetIO();
+    io.AddMouseWheelEvent(xoffset, yoffset);
+  }
+
+
+  void IoSystem::cursorPosCallback(GLFWwindow* window, double xpos, double ypos)
+  {
+    IoSystem* self = static_cast<IoSystem*>(glfwGetWindowUserPointer(window));
+    self->mouseState__.xpos = static_cast<float>(xpos);
+    self->mouseState__.ypos = static_cast<float>(ypos);
+    ImGuiIO& io = ImGui::GetIO();
+    io.MousePos.x = static_cast<float>(xpos);
+    io.MousePos.y = static_cast<float>(ypos);
+    dirty_ = true;
+  }
+
+  ImGuiKey IoSystem::glfwToImgui(int key)
+  {
+    switch (key)
+    {
+      case GLFW_KEY_TAB: return ImGuiKey_Tab;
+      case GLFW_KEY_LEFT: return ImGuiKey_LeftArrow;
+      case GLFW_KEY_RIGHT: return ImGuiKey_RightArrow;
+      case GLFW_KEY_UP: return ImGuiKey_UpArrow;
+      case GLFW_KEY_DOWN: return ImGuiKey_DownArrow;
+      case GLFW_KEY_PAGE_UP: return ImGuiKey_PageUp;
+      case GLFW_KEY_PAGE_DOWN: return ImGuiKey_PageDown;
+      case GLFW_KEY_HOME: return ImGuiKey_Home;
+      case GLFW_KEY_END: return ImGuiKey_End;
+      case GLFW_KEY_INSERT: return ImGuiKey_Insert;
+      case GLFW_KEY_DELETE: return ImGuiKey_Delete;
+      case GLFW_KEY_BACKSPACE: return ImGuiKey_Backspace;
+      case GLFW_KEY_SPACE: return ImGuiKey_Space;
+      case GLFW_KEY_ENTER: return ImGuiKey_Enter;
+      case GLFW_KEY_ESCAPE: return ImGuiKey_Escape;
+      case GLFW_KEY_A: return ImGuiKey_A;
+      case GLFW_KEY_C: return ImGuiKey_C;
+      case GLFW_KEY_V: return ImGuiKey_V;
+      case GLFW_KEY_X: return ImGuiKey_X;
+      case GLFW_KEY_Y: return ImGuiKey_Y;
+      case GLFW_KEY_Z: return ImGuiKey_Z;
+      default: return ImGuiKey_None;
+    }
   }
 
   void IoSystem::onKeyCallback(int key, int scancode, int action, int mods)
@@ -407,109 +547,6 @@ namespace mns
           break;
         }
       }
-    }
-  }
-
-  void IoSystem::keyCallbackWrapper(GLFWwindow* window, int key, int scancode, int action, int mods)
-  {
-    IoSystem* self = static_cast<IoSystem*>(glfwGetWindowUserPointer(window));
-    if (self)
-    {
-      self->onKeyCallback(key, scancode, action, mods);
-    }
-  }
-
-  void IoSystem::mouseButtonCallbackWrapper(GLFWwindow* window, int button, int action, int mods)
-  {
-    IoSystem* self = static_cast<IoSystem*>(glfwGetWindowUserPointer(window));
-    ImGuiIO& io = ImGui::GetIO();
-    io.AddMouseButtonEvent(button, action);
-    if (self)
-    {
-    }
-  }
-
-  void IoSystem::cursorPosCallbackWrapper(GLFWwindow* window, double xpos, double ypos)
-  {
-    ImGuiIO& io = ImGui::GetIO();
-    io.MousePos.x = static_cast<float>(xpos);
-    io.MousePos.y = static_cast<float>(ypos);
-    io.AddMousePosEvent(xpos, ypos);
-
-    if (io.WantCaptureMouse)
-    {
-      io.MousePos.x = xpos;
-      io.MousePos.y = ypos;
-    }
-
-    IoSystem* self = static_cast<IoSystem*>(glfwGetWindowUserPointer(window));
-    if (self)
-    {
-      self->cursorPosCallback(window, xpos, ypos);
-    }
-  }
-
-  void IoSystem::framebufferSizeCallback(GLFWwindow* window, int w, int h)
-  {
-    IoSystem* self = static_cast<IoSystem*>(glfwGetWindowUserPointer(window));
-    self->windowState__.resized = true;
-    self->windowState__.height = h;
-    self->windowState__.width = w;
-    self->dirty_ = true;
-  }
-
-  void IoSystem::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
-  {
-    IoSystem* self = static_cast<IoSystem*>(glfwGetWindowUserPointer(window));
-    self->mouseState__.whellDeltaX = xoffset - self->mouseState__.scrollXOffset;
-    self->mouseState__.whellDeltaY = yoffset - self->mouseState__.scrollYOffset;
-
-    self->mouseState__.scrollXOffset = xoffset;
-    self->mouseState__.scrollYOffset = yoffset;
-
-    self->dirty_ = true;
-    ImGuiIO& io = ImGui::GetIO();
-    io.AddMouseWheelEvent(xoffset, yoffset);
-  }
-
-
-  void IoSystem::cursorPosCallback(GLFWwindow* window, double xpos, double ypos)
-  {
-    IoSystem* self = static_cast<IoSystem*>(glfwGetWindowUserPointer(window));
-    self->mouseState__.xpos = static_cast<float>(xpos);
-    self->mouseState__.ypos = static_cast<float>(ypos);
-    ImGuiIO& io = ImGui::GetIO();
-    io.MousePos.x = static_cast<float>(xpos);
-    io.MousePos.y = static_cast<float>(ypos);
-    dirty_ = true;
-  }
-
-  ImGuiKey IoSystem::glfwToImgui(int key)
-  {
-    switch (key)
-    {
-      case GLFW_KEY_TAB: return ImGuiKey_Tab;
-      case GLFW_KEY_LEFT: return ImGuiKey_LeftArrow;
-      case GLFW_KEY_RIGHT: return ImGuiKey_RightArrow;
-      case GLFW_KEY_UP: return ImGuiKey_UpArrow;
-      case GLFW_KEY_DOWN: return ImGuiKey_DownArrow;
-      case GLFW_KEY_PAGE_UP: return ImGuiKey_PageUp;
-      case GLFW_KEY_PAGE_DOWN: return ImGuiKey_PageDown;
-      case GLFW_KEY_HOME: return ImGuiKey_Home;
-      case GLFW_KEY_END: return ImGuiKey_End;
-      case GLFW_KEY_INSERT: return ImGuiKey_Insert;
-      case GLFW_KEY_DELETE: return ImGuiKey_Delete;
-      case GLFW_KEY_BACKSPACE: return ImGuiKey_Backspace;
-      case GLFW_KEY_SPACE: return ImGuiKey_Space;
-      case GLFW_KEY_ENTER: return ImGuiKey_Enter;
-      case GLFW_KEY_ESCAPE: return ImGuiKey_Escape;
-      case GLFW_KEY_A: return ImGuiKey_A;
-      case GLFW_KEY_C: return ImGuiKey_C;
-      case GLFW_KEY_V: return ImGuiKey_V;
-      case GLFW_KEY_X: return ImGuiKey_X;
-      case GLFW_KEY_Y: return ImGuiKey_Y;
-      case GLFW_KEY_Z: return ImGuiKey_Z;
-      default: return ImGuiKey_None;
     }
   }
 }

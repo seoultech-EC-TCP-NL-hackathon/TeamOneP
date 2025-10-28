@@ -83,6 +83,9 @@ namespace gpu
     UI                = 0x00001000,
     DEPTH_PASS        = 0x00002000,
     SWAPCHIAN         = 0x00004000,
+    BLOOMING_PASS     = 0x00008000,
+    TONEMAP_PASS      = 0x00010000,
+    GAMMA_PASS        = 0x00020000,
   };
 
   enum class DescriptorFlag : uint32_t

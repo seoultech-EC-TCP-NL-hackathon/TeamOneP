@@ -20,7 +20,7 @@ class Engine
   UI ui;
   EventManager eventManager_;
   ResourceManager resourceManager;
-  RenderpassBuilder renderpassBuilder;
+  RenderPassBuilder renderpassBuilder;
 
 };
 

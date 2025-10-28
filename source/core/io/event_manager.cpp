@@ -75,9 +75,9 @@ void EventManager::moveProcessEvent()
   if (mns::io__.dirty_)
   {
     auto& state = mns::io__.keyState__;
-    if (state.keySpace) pRenderpassBuilder_->polygonMode = VK_POLYGON_MODE_FILL;
-    if (state.keyCtrl) pRenderpassBuilder_->polygonMode = VK_POLYGON_MODE_LINE;
-    if (state.keyAlt) pRenderpassBuilder_->depthTest = !pRenderpassBuilder_->depthTest;
+    if (state.keySpace) pRenderpassBuilder_->pipeline.polygonMode = VK_POLYGON_MODE_FILL;
+    if (state.keyCtrl) pRenderpassBuilder_->pipeline.polygonMode = VK_POLYGON_MODE_LINE;
+    if (state.keyAlt) pRenderpassBuilder_->pipeline.depthTest = !pRenderpassBuilder_->pipeline.depthTest ;
     //if (state.key0) renderer_->viewMode = ViewMode::VR;
     //if (state.key1) renderer_->viewMode = ViewMode::SINGLE;
     if (state.keyQ) glfwSetWindowShouldClose(gpu::ctx__->windowh__, GLFW_TRUE);

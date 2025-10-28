@@ -30,7 +30,44 @@ void LightBuilder::build(const Light& light)
 
 void LightBuilder::uploadData()
 {
-  bufferContext.data_ = &ubo;
-  bufferContext.size_ = sizeof(GPULight);
-  bufferContext.uploadData();
+  buffer.data_ = &ubo;
+  buffer.size_ = sizeof(lightUBO);
+  buffer.uploadData();
+}
+
+void LightBuilder::drawUI()
+{
+  if (ImGui::Button("light window")) this->uiState = !uiState;
+  if (uiState)
+  {
+    ImGui::Begin("light state:", &this->uiState);
+    if (ImGui::Button("build"))
+    {
+      Light light;
+      this->build(light);
+    };
+    ImGui::Separator();
+    ImGui::Text("light state :");
+    for (uint32_t i = 0; i < ubo.lightCount; i++)
+    {
+      ImGui::SliderFloat("   pos x:"+ i, &this->ubo.lights[i].position.x, -10.0f, 10.0f);
+      ImGui::SliderFloat("   pos y:"+ i, &this->ubo.lights[i].position.y, -10.0f, 10.0f);
+      ImGui::SliderFloat("   pos z:"+ i, &this->ubo.lights[i].position.z, -10.0f, 10.0f);
+
+      ImGui::Separator();
+      ImGui::SliderFloat("    dir x:"+ i, &this->ubo.lights[i].direction.x, -10.0f, 10.0f);
+      ImGui::SliderFloat("    dir y:"+ i, &this->ubo.lights[i].direction.y, -10.0f, 10.0f);
+      ImGui::SliderFloat("    dir z:"+ i, &this->ubo.lights[i].direction.z, -10.0f, 10.0f);
+      ImGui::Separator();
+      ImGui::ColorPicker4("    albedo" + i,
+                    reinterpret_cast<float*>(&ubo.lights[i].color),
+                    ImGuiColorEditFlags_NoSmallPreview |
+                    ImGuiColorEditFlags_NoLabel |
+                    ImGuiColorEditFlags_AlphaNoBg |
+                    ImGuiColorEditFlags_NoSidePreview |
+                    ImGuiColorEditFlags_NoBorder);
+      ImGui::Separator();
+    }
+    ImGui::End();
+  }
 }

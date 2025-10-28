@@ -15,8 +15,12 @@
 ///todo:
 /// UI setting
 /// 1. shadow render pass
-/// 2. lighting pass
-/// 3. material graph
+/// 2. Blooming
+/// 3. Tone mapping
+/// 4. Render Film
+/// 5. Animation
+/// 6. render graph with Imgui
+/// 7. material graph
 /// feature:
 /// 2. DLSS
 /// 3. RT setting
@@ -24,12 +28,13 @@
 /// 5. Multi Viewport
 /// 6. V Tuber
 /// 7. command buffer setting
-///
 Engine::Engine() = default;
 
 void Engine::init()
 {
   std::shared_ptr<sys::LogSink> UIsink = std::make_shared<sys::LogSink>();;
+  // spdlog::set_default_logger(std::make_shared<spdlog::logger>("default", UIsink));
+  // spdlog::set_level(spdlog::level::trace);
   gpu::ctx__->loadContext();
   mns::io__.init();
   ui.init();
@@ -73,8 +78,6 @@ void Engine::init()
 
 void Engine::run()
 {
-  //spdlog::set_default_logger(std::make_shared<spdlog::logger>("default", UIsink));
-  //spdlog::set_level(spdlog::level::trace);
   init();
   //uIRenderer->uploadImageToUI();
   gpu::Scheduler scheduler(gpu::ctx__);
@@ -83,13 +86,16 @@ void Engine::run()
     glfwPollEvents();
     (scheduler.nextFrame());
     ui.update();
-    resourceManager.updateMaincamState((gpu::ctx__->renderingContext.currentFrame__ + 1) %
+    resourceManager.updateResource((gpu::ctx__->renderingContext.currentFrame__ + 1) %
                                        gpu::ctx__->renderingContext.maxInflight__);
+
     eventManager_.moveProcessEvent();
+    ui.render();
     renderpassBuilder.uploadGBufferWritePass();
+    renderpassBuilder.uploadShadowPass();
     renderpassBuilder.uploadLightningPass();
-    renderpassBuilder.gBufferImageRer();
-   // renderpassBuilder.uploadUiDraw();
+    renderpassBuilder.offscreenRenderPass();
+    renderpassBuilder.uploadUiDraw();
     scheduler.run();
   }
 }

@@ -30,7 +30,10 @@ namespace gpu
     DEPTH,
     SWAPCHAIN,
     G_BUFFER,
-    LIGHTNING
+    LIGHTNING,
+    BLOOMING,
+    TONEMAP,
+    GAMMA_CORRECTION,
   };
 
   class VkPipelineProgram
@@ -54,10 +57,6 @@ namespace gpu
     }
   };
 
-  class VkRTPipeline
-  {
-
-  };
   struct PipelineHash
   {
     std::size_t operator()(const VkPipelineProgram& program) const

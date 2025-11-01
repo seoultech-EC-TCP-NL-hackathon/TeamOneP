@@ -17,3 +17,4 @@ frame graph
 MRT 결과물:
 
 <img width="1989" height="1186" alt="image" src="https://github.com/user-attachments/assets/d552ff31-0b4d-4559-bdc2-52b0e69b9398" />
+<img width="1981" height="1193" alt="image" src="https://github.com/user-attachments/assets/9d16a7c5-9372-478b-aeb8-f6a4cd3733f0" />

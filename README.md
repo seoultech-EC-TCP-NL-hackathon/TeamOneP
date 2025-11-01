@@ -12,3 +12,8 @@ My Renderer
 
 frame graph 
 <img width="2430" height="1266" alt="image" src="https://github.com/user-attachments/assets/3c0931ca-901b-4c79-bb96-4306b1656101" />
+
+
+MRT 결과물:
+
+<img width="1992" height="1109" alt="image" src="https://github.com/user-attachments/assets/87f80fc7-e9f3-43c9-afce-18135d500578" />
